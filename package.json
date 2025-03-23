@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@number-flow/react": "^0.5.8",
+    "@supabase/ssr": "^0.6.1",
     "clsx": "^2.1.1",
     "lenis": "^1.2.3",
     "motion": "^12.5.0",
