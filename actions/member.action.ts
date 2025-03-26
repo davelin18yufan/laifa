@@ -1,17 +1,26 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { snakeToCamel } from "@/lib/utils"
+import { Customer, Member, StoreLocation } from "@/types"
 
-export async function getMembers() {
+export async function getMembers(searchPhone?: string): Promise<Member[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from("members")
     .select(
       "member_id, phone, name, balance, last_balance_update, birthday, gender"
     )
 
+  if (searchPhone) {
+    query = query.ilike("phone", `%${searchPhone}%`) // 使用 ilike 模糊搜尋（不區分大小寫）
+  }
+
+  const { data, error } = await query
+
   if (error) throw new Error(error.message)
-  return data
+
+  return (data || []).map(snakeToCamel)
 }
 
 export async function getMemberById(memberId: string) {
@@ -76,4 +85,53 @@ export async function deleteMember(memberId: string) {
     .eq("member_id", memberId)
 
   if (error) throw new Error(error.message)
+}
+
+export async function getFrequentMembersByStore(): Promise<StoreLocation[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("frequent_members_by_store")
+    .select(
+      "store_id, store_name, member_id, phone, name, balance, last_visit, transaction_count, total_spent, latest_note_category, latest_note_content"
+    )
+    .order("store_id, transaction_count", { ascending: false })
+
+  if (error) throw new Error(error.message)
+
+  const frequentMembers = (data || []).map(snakeToCamel)
+
+  const storeLocations: StoreLocation[] = frequentMembers.reduce(
+    (acc: StoreLocation[], curr: any) => {
+      const store = acc.find((s) => s.id === curr.storeId)
+      const customer: Customer = {
+        id: curr.memberId,
+        phone: curr.phone,
+        balance: curr.balance ?? 0,
+        name: curr.name,
+        lastVisit: curr.lastVisit ?? "",
+        transactionCount: curr.transactionCount,
+        totalSpent: curr.totalSpent,
+        latestNote: curr.latestNoteCategory
+          ? {
+              category: curr.latestNoteCategory,
+              content: curr.latestNoteContent ?? "",
+            }
+          : null,
+      }
+
+      if (store) {
+        store.customers.push(customer)
+      } else {
+        acc.push({
+          id: curr.storeId,
+          name: curr.storeName,
+          customers: [customer],
+        })
+      }
+      return acc
+    },
+    []
+  )
+
+  return storeLocations
 }

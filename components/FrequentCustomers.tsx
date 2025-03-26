@@ -4,6 +4,8 @@ import { StoreLocation, Customer } from "@/types"
 import { useState } from "react"
 import { FaUsers as Users, FaStore as Store } from "react-icons/fa"
 import { motion } from "motion/react"
+import { BiWallet } from "react-icons/bi"
+import { FiMessageCircle } from "react-icons/fi"
 
 interface FrequentCustomersProps {
   storeLocations: StoreLocation[]
@@ -42,9 +44,8 @@ export default function FrequentCustomers({
 
   // Get the current active store's customers
   const getActiveStoreCustomers = () => {
-    const activeStore = storeLocations.find(
-      (store) => store.id === activeStoreId
-    )
+    const activeStore = storeLocations
+      .find(({ id }) => activeStoreId === id)
     return activeStore ? activeStore.customers : []
   }
 
@@ -84,23 +85,57 @@ export default function FrequentCustomers({
         </div>
 
         <div className="space-y-4">
-          {getActiveStoreCustomers().map((customer) => (
-            <button
-              key={customer.id}
-              onClick={() => onSelectCustomer(customer)}
-              className="w-full p-3 text-left bg-gray-50 rounded-lg hover:bg-amber-50 transition-colors"
-            >
-              <p className="font-medium text-gray-800">{customer.name}</p>
-              <p className="text-sm text-gray-600">{customer.phone}</p>
-              <p className="text-sm font-medium text-amber-600">
-                餘額: ${customer.balance.toFixed(2)}
-              </p>
-            </button>
-          ))}
+          {getActiveStoreCustomers().length > 0 ? (
+            getActiveStoreCustomers().map((customer) => (
+              <button
+                key={customer.id}
+                onClick={() => onSelectCustomer(customer)}
+                className="w-full p-4 text-left bg-white border border-gray-100 rounded-lg 
+                         hover:bg-amber-50 hover:border-amber-100 
+                         transition-all duration-300 
+                         shadow-sm hover:shadow-md 
+                         flex items-center gap-4 
+                         cursor-pointer group"
+              >
+                <div className="flex-grow">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="font-semibold text-gray-800 group-hover:text-amber-700">
+                      {customer.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{customer.phone}</p>
+                  </div>
 
-          {getActiveStoreCustomers().length === 0 && (
-            <div className="text-center text-gray-500 py-4">
-              此分店目前沒有常見會員
+                  <div className="flex items-center justify-between flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <BiWallet className="h-4 w-4 text-amber-600" />
+                      <p className="text-sm font-medium text-amber-700">
+                        餘額: ${customer.balance.toFixed(2)}
+                      </p>
+                    </div>
+
+                    {customer.latestNote && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 py-1">
+                        <FiMessageCircle className="h-4 w-4 font-bold" />
+                        <span className="mr-1">{customer.latestNote.category}</span>
+                        <span>{customer.latestNote.content}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {customer.transactionCount && (
+                    <div className="mt-2 text-xs text-gray-500">
+                      總交易次數: {customer.transactionCount}
+                      {customer.totalSpent &&
+                        ` | 總消費: $${customer.totalSpent.toFixed(2)}`}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
+              <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+              <p>此分店目前沒有常見會員</p>
             </div>
           )}
         </div>
