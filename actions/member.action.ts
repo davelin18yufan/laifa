@@ -268,7 +268,7 @@ export async function cacheFrequentMembersByStore() {
   return cache(
     () => getFrequentMembersByStore(),
     ["frequent_members_by_store"],
-    { tags: ["frequent_members_by_store"] }
+    { tags: ["frequent_members_by_store"], revalidate: 60 * 60 } // 每小時重新驗證一次
   )
 }
 

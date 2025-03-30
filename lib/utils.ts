@@ -29,3 +29,14 @@ export function debounce<T extends unknown>(func: Function, wait: number = 300) 
     timeout = setTimeout(() => func.apply(context, args), wait);
   };
 }
+
+export function formatDate(date: Date | string): string {
+  if (typeof date === "string") {
+    date = new Date(date);
+  }
+  return date.toLocaleDateString("zh-TW", {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}

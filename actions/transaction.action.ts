@@ -23,6 +23,7 @@ export async function recordTransaction({
       store_id: storeId,
       transaction_type: type,
       amount,
+      transaction_date: new Date().toISOString(),
     })
     if (insertError) throw insertError
     // 查詢當前餘額

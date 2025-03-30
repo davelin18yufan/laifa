@@ -53,3 +53,36 @@ export interface FrequentMembers {
   latestNoteContent: string | null
   latestNoteDate: string | null
 }
+
+export interface BusinessOverview {
+  totalMembers: number;
+  totalConsumption: number;
+  totalDeposit: number;
+  avgMemberBalance: number;
+}
+
+export interface PeakTransactionHour {
+  hourOfDay: number;
+  transactionCount: number;
+}
+
+export interface NoteCategoryStat {
+  category: string;
+  noteCount: number;
+  uniqueMembers: number;
+}
+
+export interface StorePerformance {
+  storeId: string;
+  storeName: string;
+  totalConsumption: number;
+  totalDeposit: number;
+  frequentMemberRatio: number;
+}
+
+export interface TopSpendingMember {
+  memberId: string;
+  phone: string;
+  name: string;
+  totalSpent: number;
+}
