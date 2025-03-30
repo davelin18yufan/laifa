@@ -1,15 +1,17 @@
 "use client"
 
 import { StoreLocation, Customer } from "@/types"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FaUsers as Users, FaStore as Store } from "react-icons/fa"
 import { motion } from "motion/react"
 import { BiWallet } from "react-icons/bi"
-import { FiMessageCircle } from "react-icons/fi"
+import { GrNotes } from "react-icons/gr"
+import { GiFemale, GiMale } from "react-icons/gi"
 
 interface FrequentCustomersProps {
   storeLocations: StoreLocation[]
   onSelectCustomer: (customer: Customer) => void
+  initialActiveStoreId?: string
 }
 
 const handleDragTab = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -37,20 +39,25 @@ const handleDragTab = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 export default function FrequentCustomers({
   storeLocations,
   onSelectCustomer,
+  initialActiveStoreId,
 }: FrequentCustomersProps) {
-  const [activeStoreId, setActiveStoreId] = useState(
-    storeLocations[0]?.id || ""
-  )
+  const [activeStoreId, setActiveStoreId] = useState(initialActiveStoreId || "")
 
   // Get the current active store's customers
   const getActiveStoreCustomers = () => {
-    const activeStore = storeLocations
-      .find(({ id }) => activeStoreId === id)
+    const activeStore = storeLocations.find(({ id }) => activeStoreId === id)
     return activeStore ? activeStore.customers : []
   }
 
+  // 當 initialActiveStoreId 變化時，同步 activeStoreId
+  useEffect(() => {
+    if (initialActiveStoreId && initialActiveStoreId !== activeStoreId) {
+      setActiveStoreId(initialActiveStoreId)
+    }
+  }, [initialActiveStoreId])
+
   return (
-    <div className="w-80 max-md:w-full bg-white shadow-lg flex flex-col">
+    <div className="w-80 max-md:w-full bg-neutral-50 shadow-lg flex flex-col">
       {/* Tab Headers */}
       <div
         className="relative flex border-b overflow-x-hidden "
@@ -90,22 +97,20 @@ export default function FrequentCustomers({
               <button
                 key={customer.id}
                 onClick={() => onSelectCustomer(customer)}
-                className="w-full p-4 text-left bg-white border border-gray-100 rounded-lg 
-                         hover:bg-amber-50 hover:border-amber-100 
-                         transition-all duration-300 
-                         shadow-sm hover:shadow-md 
-                         flex items-center gap-4 
-                         cursor-pointer group"
+                className="w-full p-4 text-left bg-white border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-amber-100 shadow-sm hover:shadow-md ring ring-red-100 flex items-center gap-4 cursor-pointer group "
               >
                 <div className="flex-grow">
                   <div className="flex justify-between items-center mb-1">
-                    <p className="font-semibold text-gray-800 group-hover:text-amber-700">
+                    <p className="font-semibold text-gray-800 group-hover:text-amber-700 flex items-center gap-1">
+                      {customer.gender === "female" ? <GiFemale /> : <GiMale />}
                       {customer.name}
                     </p>
-                    <p className="text-sm text-gray-500">{customer.phone}</p>
+                    <span className="text-sm text-gray-500">
+                      {customer.phone}
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between flex-wrap">
+                  <div className="flex items-start justify-between flex-col">
                     <div className="flex items-center gap-2">
                       <BiWallet className="h-4 w-4 text-amber-600" />
                       <p className="text-sm font-medium text-amber-700">
@@ -114,20 +119,24 @@ export default function FrequentCustomers({
                     </div>
 
                     {customer.latestNote && (
-                      <div className="flex items-center gap-1 text-xs text-gray-500 py-1">
-                        <FiMessageCircle className="h-4 w-4 font-bold" />
-                        <span className="mr-1">{customer.latestNote.category}</span>
-                        <span>{customer.latestNote.content}</span>
+                      <div className="flex items-center gap-1 text-xs text-gray-500 py-1 overflow-hidden">
+                        <GrNotes className="h-4 w-4 font-bold" />
+                        <span className="mr-1">
+                          {customer.latestNote.category}
+                        </span>
+                        <span className="line-clamp-1">
+                          {customer.latestNote.content}
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {customer.transactionCount && (
-                    <div className="mt-2 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-400">
                       總交易次數: {customer.transactionCount}
                       {customer.totalSpent &&
                         ` | 總消費: $${customer.totalSpent.toFixed(2)}`}
-                    </div>
+                    </p>
                   )}
                 </div>
               </button>

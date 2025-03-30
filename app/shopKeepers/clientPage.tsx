@@ -3,19 +3,43 @@
 import { MotionNumber } from "@/components/MotionNumber"
 import { Customer, StoreLocation } from "@/types"
 import FrequentCustomers from "components/FrequentCustomers"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useActionState } from "react"
 import {
   FaSearch as Search,
   FaCoffee as Coffee,
   FaPlus as Plus,
   FaMinus as Minus,
   FaUserPlus as UserPlus,
+  FaUserAlt,
+  FaEdit,
 } from "react-icons/fa"
-import { getMembers } from "@/actions/member.action"
+import {
+  getMembers,
+  upsertMemberNote,
+  addMember,
+  updateMember,
+} from "@/actions/member.action"
 import { recordTransaction } from "@/actions/transaction.action"
 import { SparklesText } from "components/SparklesText"
 import { debounce } from "@/lib/utils"
 import { FiRefreshCw } from "react-icons/fi"
+import { PiPen } from "react-icons/pi"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContainer,
+  DialogContent,
+  DialogClose,
+  DialogTitle,
+  DialogDescription,
+} from "components/Dialog"
+import {
+  BiCaretRightCircle,
+  BiMessageAltDetail,
+  BiWallet,
+} from "react-icons/bi"
+import GenderSelect from "components/GenderSelect"
+import MemberFormDialog from "components/MemberFormDialog"
 
 export default function ClientPage({
   storeLocations,
@@ -33,12 +57,43 @@ export default function ClientPage({
   const [searchResults, setSearchResults] = useState<Customer[]>([])
   const searchResultsRef = useRef<HTMLDivElement>(null)
 
+  const [state, formAction] = useActionState(
+    async (prevState: any, formData: FormData) => {
+      const memberId = formData.get("memberId") as string
+      const category = formData.get("category") as string
+      const content = formData.get("content") as string
+
+      try {
+        const updatedNote = await upsertMemberNote({
+          memberId,
+          category,
+          content,
+        })
+        // 更新當前客戶端的 customer 狀態
+        setCurrentCustomer((prev) =>
+          prev ? { ...prev, latestNote: updatedNote } : null
+        )
+
+        return { success: true, error: null }
+      } catch (error) {
+        return {
+          success: false,
+          error: (error as Error).message,
+          payload: {
+            category,
+            content,
+          },
+        }
+      }
+    },
+    { success: false, error: null }
+  )
+
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const phoneInput = e.target.value
     setSearchPhone(phoneInput)
 
     if (phoneInput.length > 2) {
-      // 至少輸入 3 位才觸發搜尋
       try {
         const search = debounce(async () => {
           const members = await getMembers(phoneInput)
@@ -49,6 +104,9 @@ export default function ClientPage({
               balance: m.balance,
               name: m.name,
               lastVisit: m.lastBalanceUpdate,
+              latestNote: m.latestNote,
+              storeId: m.storeId,
+              gender: m.gender
             }))
           )
         }, 300)
@@ -68,19 +126,16 @@ export default function ClientPage({
 
     try {
       setPrevBalance(currentCustomer.balance)
-
-      await recordTransaction({
+      const result = await recordTransaction({
         memberId: currentCustomer.id,
         storeId: currentStoreId,
         type: "deposit",
         amount,
       })
-
-      const newBalance = currentCustomer.balance + amount
       setBalanceDiff(amount)
       setCurrentCustomer({
         ...currentCustomer,
-        balance: newBalance,
+        balance: result.newBalance,
         lastVisit: new Date().toISOString(),
       })
       setAmount(0)
@@ -96,20 +151,17 @@ export default function ClientPage({
 
     try {
       setPrevBalance(currentCustomer.balance)
-
-      await recordTransaction({
+      const result = await recordTransaction({
         memberId: currentCustomer.id,
         storeId: currentStoreId,
         type: "consumption",
         amount,
       })
-
-      const newBalance = currentCustomer.balance - amount
       const diff = -amount
       setBalanceDiff(diff)
       setCurrentCustomer({
         ...currentCustomer,
-        balance: newBalance,
+        balance: result.newBalance,
         lastVisit: new Date().toISOString(),
       })
       setAmount(0)
@@ -119,14 +171,12 @@ export default function ClientPage({
     }
   }
 
-  const handleAddMember = () => {}
-
   const handleSelectCustomer = (customer: Customer) => {
     setSearchPhone(customer.phone)
     setCurrentCustomer(customer)
     setPrevBalance(null)
     setBalanceDiff(0)
-    setSearchResults([]) // 選擇後清空搜尋結果
+    setSearchResults([])
   }
 
   const handleStoreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -134,12 +184,16 @@ export default function ClientPage({
     setCurrentStoreId(newStoreId)
   }
 
-    const handleReset = () => {
-      setSearchPhone("")
-      setSearchResults([])
-    }
+  const handleReset = () => {
+    setSearchPhone("")
+    setSearchResults([])
+  }
 
-  // 點擊外部清除搜尋結果
+  const handleMemberFormSuccess = (updatedMember: Customer) => {
+    setCurrentCustomer(updatedMember)
+    setSearchPhone(updatedMember.phone)
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -155,10 +209,11 @@ export default function ClientPage({
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
+
   return (
     <div className="min-h-screen bg-[#F9F5F1] flex max-md:flex-col">
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-6">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8 flex max-lg:flex-col justify-between items-center gap-2.5">
             <div className="flex items-center gap-3">
@@ -167,11 +222,10 @@ export default function ClientPage({
                 className="text-slate-800 text-5xl text-nowrap"
                 text={
                   storeLocations.find((store) => store.id === currentStoreId)
-                    ?.name!
+                    ?.name || "未選擇分店"
                 }
               />
               <h1 className="text-2xl font-bold text-amber-900 max-md:hidden">
-                {" "}
                 會員管理
               </h1>
             </div>
@@ -191,12 +245,19 @@ export default function ClientPage({
                   </option>
                 ))}
               </select>
+
+              {/* Add member */}
+              <MemberFormDialog
+                storeLocations={storeLocations}
+                onSuccess={handleMemberFormSuccess}
+                isUpdate={false}
+              />
             </div>
           </header>
 
           {/* Search Section */}
-          <section className="bg-white rounded-xl p-6 shadow-sm mb-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          <section className="bg-white rounded-xl p-6 shadow-sm mb-6 relative">
+            <h2 className="absolute left-0 -top-4 text-xl font-semibold mb-4 text-gray-800">
               查詢會員餘額
             </h2>
             <div className="flex gap-4">
@@ -217,7 +278,6 @@ export default function ClientPage({
                     <FiRefreshCw className="h-5 w-5" />
                   </button>
                 )}
-                {/* Search Result */}
                 {searchResults.length > 0 && (
                   <div
                     ref={searchResultsRef}
@@ -241,49 +301,137 @@ export default function ClientPage({
             </div>
 
             {currentCustomer && (
-              <div className="mt-4 p-4 bg-amber-50 rounded-lg">
-                <h3 className="font-semibold text-amber-900">
-                  {currentCustomer.name}
-                </h3>
-                <div className="text-amber-700">
-                  目前餘額:{" "}
-                  <MotionNumber
-                    value={currentCustomer.balance}
-                    diff={balanceDiff}
+              <div className="mt-4 p-5 bg-neutral-50 rounded-xl shadow-lg text-gray-800 overflow-hidden">
+                {/* Header Section  */}
+                <div className="flex justify-between items-center relative z-10">
+                  <div className="flex items-center gap-2">
+                    <FaUserAlt />
+                  </div>
+                  <h3 className="font-bold text-xl text-center text-neutral-800">
+                    {currentCustomer.name}
+                  </h3>
+                  <MemberFormDialog
+                    storeLocations={storeLocations}
+                    customer={currentCustomer}
+                    onSuccess={handleMemberFormSuccess}
+                    isUpdate={true}
                   />
                 </div>
-                <p className="text-sm text-amber-600 mt-2">
-                  上次更新時間:{" "}
-                  {new Date(currentCustomer.lastVisit).toLocaleDateString()}
-                </p>
+
+                {/* Balance Section  */}
+                <div className="mb-3 py-3 rounded-lg">
+                  <BiWallet />
+                  <div className="w-full">
+                    <MotionNumber
+                      value={currentCustomer.balance}
+                      diff={balanceDiff}
+                    />
+                  </div>
+                </div>
+
+                {/* Notes Section */}
+                <div className="mb-2 flex justify-between items-center">
+                  <BiMessageAltDetail />
+                  <Dialog transition={{ duration: 0.3, ease: "easeInOut" }}>
+                    <DialogTrigger className="text-amber-600 hover:text-amber-500 flex items-center gap-1 text-sm transition-colors">
+                      {currentCustomer.latestNote ? (
+                        <>
+                          <PiPen className="h-4 w-4" /> 編輯備註
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4" /> 新增備註
+                        </>
+                      )}
+                    </DialogTrigger>
+                    <DialogContainer>
+                      <DialogContent className="bg-gray-50 rounded-xl p-6 relative shadow-lg ">
+                        <DialogClose className="text-gray-800 hover:text-orange-500" />
+                        <DialogTitle className="text-xl font-bold text-gray-800 mb-4">
+                          {currentCustomer.latestNote ? "編輯備註" : "新增備註"}
+                        </DialogTitle>
+                        <DialogDescription className="space-y-4">
+                          <form action={formAction}>
+                            <input
+                              type="hidden"
+                              name="memberId"
+                              value={currentCustomer.id}
+                            />
+                            <input
+                              autoComplete="on"
+                              type="text"
+                              name="category"
+                              placeholder="備註類型"
+                              defaultValue={
+                                state.payload?.category ||
+                                currentCustomer.latestNote?.category ||
+                                ""
+                              }
+                              className="w-full p-2 border text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
+                            />
+                            <textarea
+                              name="content"
+                              placeholder="輸入備註內容"
+                              defaultValue={
+                                state.payload?.content ||
+                                currentCustomer.latestNote?.content ||
+                                ""
+                              }
+                              className="w-full p-2 border mt-2 text-gray-700  rounded-md min-h-[120px] focus:outline-none focus:ring-2 focus:ring-orange-300"
+                            />
+                            <button
+                              type="submit"
+                              disabled={
+                                state.success === false && !!state.error
+                              }
+                              className="w-full py-2 mt-4 bg-amber-500 text-black font-semibold rounded-full hover:bg-amber-400 transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed flex justify-center items-center gap-1"
+                            >
+                              保存
+                              <BiCaretRightCircle />
+                            </button>
+                          </form>
+                          {state.error && (
+                            <p className="text-red-600 text-sm mt-2">
+                              {state.error}
+                            </p>
+                          )}
+                        </DialogDescription>
+                      </DialogContent>
+                    </DialogContainer>
+                  </Dialog>
+                </div>
+
+                {currentCustomer.latestNote ? (
+                  <div className="p-3 rounded-lg bg-yellow-50 border-b-4 border-yellow-100 shadow-md transform hover:rotate-1  transition-transform">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 bg-yellow-200 text-slate-700 text-xs font-medium rounded-lg">
+                          {currentCustomer.latestNote.category}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 p-2 bg-yellow-50 rounded-md">
+                        {currentCustomer.latestNote.content}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2 text-right italic font-handwriting">
+                      更新於:{" "}
+                      {new Date(
+                        currentCustomer.latestNote.updatedAt
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-lg text-center">
+                    <p className="text-sm text-gray-600">尚無備註</p>
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {/* Input Area */}
-          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-amber-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  會員資訊登記
-                </span>
-              </div>
-              <button
-                onClick={handleAddMember}
-                className="px-3 py-1 bg-amber-100 text-amber-700 
-                       rounded-md text-sm hover:bg-amber-200 
-                       transition-colors cursor-pointer p-1"
-              >
-                新增會員
-              </button>
-            </div>
-            {/* You can add more input fields here for member registration */}
-          </div>
-
           {/* Pricing Calculator */}
-          <section className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          <section className="bg-white rounded-xl p-6 shadow-sm relative">
+            <h2 className="absolute -top-4 left-0 text-xl font-semibold mb-4 text-gray-800">
               餘額更新
             </h2>
             <div className="flex flex-col gap-4">
@@ -338,6 +486,7 @@ export default function ClientPage({
       <FrequentCustomers
         storeLocations={storeLocations}
         onSelectCustomer={handleSelectCustomer}
+        initialActiveStoreId={currentStoreId}
       />
     </div>
   )

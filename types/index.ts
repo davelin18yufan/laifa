@@ -3,10 +3,12 @@ export interface Customer {
   phone: string
   balance: number
   name: string
+  gender: "male" | "female"
   lastVisit: string
   transactionCount?: number
   totalSpent?: number
   latestNote?: Note | null
+  storeId: string
 }
 
 export interface StoreLocation {
@@ -22,8 +24,9 @@ export interface Member {
   name: string
   lastBalanceUpdate: string
   birthday?: string
-  gender?: "male" | "female" | "other"
+  gender: "male" | "female" 
   latestNote?: Note | null
+  storeId: string
 }
 
 export interface Note {
@@ -41,6 +44,7 @@ export interface FrequentMembers {
   memberId: string
   phone: string
   name: string
+  gender: "male" | "female"
   balance: number | null
   lastVisit: string | null
   transactionCount: number
