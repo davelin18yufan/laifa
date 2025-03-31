@@ -29,7 +29,7 @@ export default function Header() {
             </li>
           </ul>
           <ThemeSwitch />
-          <Link href="/shopKeepers" className="ml-2.5">
+          <Link href="/shopkeeper" className="ml-2.5">
             <FaUserTie className="size-4" />
           </Link>
           <Link href="/admin" className="ml-2.5">
