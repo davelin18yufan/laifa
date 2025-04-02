@@ -46,7 +46,7 @@ export default function ClientPage({
 }: {
   storeLocations: StoreLocation[]
 }) {
-  const [searchPhone, setSearchPhone] = useState("")
+  const [searchInput, setSearchInput] = useState("")
   const [amount, setAmount] = useState(0)
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null)
   const [prevBalance, setPrevBalance] = useState<number | null>(null)
@@ -90,13 +90,18 @@ export default function ClientPage({
   )
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const phoneInput = e.target.value
-    setSearchPhone(phoneInput)
+    const input = e.target.value
+    setSearchInput(input)
 
-    if (phoneInput.length > 2) {
+    if (input.length > 1) {
       try {
         const search = debounce(async () => {
-          const members = await getMembers(phoneInput)
+          // 根據輸入判斷是電話還是姓名
+          const isPhone = /^\d+$/.test(input) // 如果全是數字，視為電話
+          const members = await getMembers(
+            isPhone ? input : undefined,
+            isPhone ? undefined : input
+          )
           setSearchResults(
             members.map((m) => ({
               id: m.memberId,
@@ -106,7 +111,7 @@ export default function ClientPage({
               lastVisit: m.lastBalanceUpdate,
               latestNote: m.latestNote,
               storeId: m.storeId,
-              gender: m.gender
+              gender: m.gender,
             }))
           )
         }, 300)
@@ -120,7 +125,6 @@ export default function ClientPage({
       setCurrentCustomer(null)
     }
   }
-
   const handleAddFunds = async () => {
     if (!currentCustomer || amount <= 0) return
 
@@ -172,7 +176,7 @@ export default function ClientPage({
   }
 
   const handleSelectCustomer = (customer: Customer) => {
-    setSearchPhone(customer.phone)
+    setSearchInput(customer.phone)
     setCurrentCustomer(customer)
     setPrevBalance(null)
     setBalanceDiff(0)
@@ -185,13 +189,13 @@ export default function ClientPage({
   }
 
   const handleReset = () => {
-    setSearchPhone("")
+    setSearchInput("")
     setSearchResults([])
   }
 
   const handleMemberFormSuccess = (updatedMember: Customer) => {
     setCurrentCustomer(updatedMember)
-    setSearchPhone(updatedMember.phone)
+    setSearchInput(updatedMember.phone)
   }
 
   useEffect(() => {
@@ -264,13 +268,13 @@ export default function ClientPage({
               <div className="flex-1 relative">
                 <input
                   type="tel"
-                  placeholder="請輸入電話號碼"
+                  placeholder="請輸入電話號碼 or 姓名"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  value={searchPhone}
+                  value={searchInput}
                   onChange={handleSearch}
                 />
                 <Search className="absolute top-1/2 right-5 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                {searchPhone && (
+                {searchInput && (
                   <button
                     onClick={handleReset}
                     className="absolute top-1/2 right-14 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"

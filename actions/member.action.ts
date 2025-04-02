@@ -9,10 +9,12 @@ import {
   revalidateTag,
 } from "next/cache"
 
-export async function getMembers(searchPhone?: string): Promise<Member[]> {
+export async function getMembers(
+  searchPhone?: string,
+  searchName?: string
+): Promise<Member[]> {
   const supabase = await createClient()
 
-  // 使用左聯表查詢，並限制只取最新的一筆備註
   let query = supabase
     .from("members")
     .select(
@@ -37,8 +39,11 @@ export async function getMembers(searchPhone?: string): Promise<Member[]> {
     )
     .limit(1, { foreignTable: "member_notes" }) // 只取一筆備註
 
-  if (searchPhone) {
-    query = query.ilike("phone", `%${searchPhone}%`)
+  if (searchPhone || searchName) {
+    const conditions = []
+    if (searchPhone) conditions.push(`phone.ilike.%${searchPhone}%`)
+    if (searchName) conditions.push(`name.ilike.%${searchName}%`)
+    query = query.or(conditions.join(","))
   }
 
   const { data, error } = await query
