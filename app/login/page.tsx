@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/shopkeeper"
+  const callbackUrl = decodeURIComponent(searchParams.get("callbackUrl") || "/shopkeeper")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
