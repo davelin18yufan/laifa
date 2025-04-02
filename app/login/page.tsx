@@ -4,9 +4,6 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FaEye, FaEyeSlash } from "react-icons/fa"
-import { BiCoffee } from "react-icons/bi"
-import { GiCoffeePot } from "react-icons/gi"
-import { GrCafeteria } from "react-icons/gr"
 import { MdLocalCafe } from "react-icons/md"
 
 export default function Login() {
