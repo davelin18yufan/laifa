@@ -3,10 +3,16 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { FaEye, FaEyeSlash } from "react-icons/fa"
+import { BiCoffee } from "react-icons/bi"
+import { GiCoffeePot } from "react-icons/gi"
+import { GrCafeteria } from "react-icons/gr"
+import { MdLocalCafe } from "react-icons/md"
 
 export default function Login() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [isVisible, setIsVisible] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -31,12 +37,12 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">登入系統</h1>
-          <p className="mt-2 text-gray-600">請輸入您的帳號密碼</p>
-        </div>
+    <div className="flex min-h-screen items-start justify-center bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-8 mt-16 bg-white rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold flex items-center gap-1 justify-center text-orange-700">
+          <MdLocalCafe />
+          Laifa Cafe
+        </h1>
 
         {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
@@ -46,39 +52,40 @@ export default function Login() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="username" className="text-sm font-normal">
               帳號
             </label>
             <input
               id="username"
               name="username"
               type="text"
+              placeholder="請輸入帳號.."
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="bg-background w-full outline-none focus-within:border-amber-700 rounded-md p-2  border-1"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="pass" className="text-sm font-normal">
               密碼
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative mt-1">
+              <input
+                type={isVisible ? "text" : "password"}
+                id="pass"
+                placeholder="請輸入密碼.."
+                className="bg-background w-full outline-none focus-within:border-amber-700 rounded-md p-2 border-1"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div
+                className="absolute top-3 right-4 text-2xl text-gray-500 cursor-pointer"
+                onClick={() => setIsVisible((prev) => !prev)}
+              >
+                {isVisible ? <FaEye size={22} /> : <FaEyeSlash size={22} />}
+              </div>
+            </div>
           </div>
 
           <div>
