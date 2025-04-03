@@ -1,6 +1,6 @@
 "use client"
 
-import { MotionNumber } from "@/components/MotionNumber"
+import { MotionNumber } from "components/texts/MotionNumber"
 import { Customer, StoreLocation } from "@/types"
 import FrequentCustomers from "components/FrequentCustomers"
 import { useEffect, useRef, useState, useActionState } from "react"
@@ -20,7 +20,7 @@ import {
   updateMember,
 } from "@/actions/member.action"
 import { recordTransaction } from "@/actions/transaction.action"
-import { SparklesText } from "components/SparklesText"
+import { SparklesText } from "components/texts/SparklesText"
 import { debounce } from "@/lib/utils"
 import { FiRefreshCw } from "react-icons/fi"
 import { PiPen } from "react-icons/pi"
@@ -38,7 +38,7 @@ import {
   BiMessageAltDetail,
   BiWallet,
 } from "react-icons/bi"
-import GenderSelect from "components/GenderSelect"
+import GenderSelect from "components/buttons/GenderSelect"
 import MemberFormDialog from "components/MemberFormDialog"
 
 export default function ClientPage({

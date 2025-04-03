@@ -12,7 +12,7 @@ import {
   DialogDescription,
   useDialog,
 } from "components/Dialog"
-import GenderSelect from "components/GenderSelect"
+import GenderSelect from "components/buttons/GenderSelect"
 import { addMember, updateMember } from "@/actions/member.action"
 import { FaUserPlus, FaEdit } from "react-icons/fa"
 
@@ -164,9 +164,7 @@ export default function MemberFormDialog({
                 <div className="flex gap-4">
                   <GenderSelect
                     initialValue={
-                      isUpdate
-                        ? customer?.gender
-                        : formState.payload?.gender
+                      isUpdate ? customer?.gender : formState.payload?.gender
                     }
                   />
                 </div>

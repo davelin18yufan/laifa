@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react"
 import { ImagesSlider } from "./ImageSlider"
-import IconButton from "./IconButton"
+import IconButton from "./buttons/IconButton"
 import { useEffect } from "react"
-import { LineShadowText } from "./ShadowText"
+import { LineShadowText } from "./texts/ShadowText"
 import { useTheme } from "next-themes"
 
 export default function Hero() {
