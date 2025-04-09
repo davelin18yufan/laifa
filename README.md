@@ -21,4 +21,4 @@ Tailwind CSS is used for styling, and Next Themes is used for dark mode. React I
 - Next Themes for dark mode
 - React Icons
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/talhatahir)
+
