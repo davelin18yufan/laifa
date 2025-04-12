@@ -43,7 +43,7 @@ function Header() {
           <Link href="/shopkeeper" className="ml-2.5">
             <FaUserTie className="size-4" />
           </Link>
-          <Link href="/admin" className="ml-2.5">
+          <Link href="/admin" className="ml-3">
             <FaUserLock className="size-4" />
           </Link>
           {isAuthorized && (

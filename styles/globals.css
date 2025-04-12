@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
-  select, button {
+  select,
+  button {
     @apply cursor-pointer;
   }
 }
