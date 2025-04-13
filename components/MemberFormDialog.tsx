@@ -97,23 +97,23 @@ export default function MemberFormDialog({
           </>
         )}
       </DialogTrigger>
-      <DialogContainer className="top-10 min-w-88">
-        <DialogContent className="bg-slate-50 rounded-xl p-6 relative shadow-lg">
+      <DialogContainer className="top-10 min-w-88 text-gray-800 dark:text-neutral-100">
+        <DialogContent className="bg-slate-50 dark:bg-gray-950 rounded-xl p-6 relative shadow-lg">
           <DialogClose className="absolute top-4 right-4 text-gray-500 hover:text-amber-500" />
-          <DialogTitle className="text-xl font-bold text-gray-800 mb-4">
+          <DialogTitle className="text-xl font-bold mb-4">
             {isUpdate ? "更新會員資料" : "新增會員資料"}
           </DialogTitle>
           <DialogDescription>
-            <form action={formActionHandler} className="space-y-4">
+            <form
+              action={formActionHandler}
+              className="space-y-4 text-gray-700 dark:text-gray-200"
+            >
               {isUpdate && (
                 <input type="hidden" name="memberId" value={customer?.id} />
               )}
               {/* 電話 */}
               <div className="space-y-2">
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="phone" className="block text-sm font-medium ">
                   電話 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -128,16 +128,13 @@ export default function MemberFormDialog({
                       : formState.payload?.phone || ""
                   }
                   placeholder="0912345678"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300 focus:dark:ring-amber-600"
                 />
               </div>
 
               {/* 姓名 */}
               <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="name" className="block text-sm font-medium ">
                   姓名 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -152,13 +149,13 @@ export default function MemberFormDialog({
                       : formState.payload?.name || ""
                   }
                   placeholder="請輸入會員姓名"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300 focus:dark:ring-amber-600"
                 />
               </div>
 
               {/* 性別 */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium ">
                   性別
                 </label>
                 <div className="flex gap-4">
@@ -172,10 +169,7 @@ export default function MemberFormDialog({
 
               {/* 分店 */}
               <div className="space-y-2">
-                <label
-                  htmlFor="storeId"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="storeId" className="block text-sm font-medium">
                   所屬分店 <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -187,13 +181,17 @@ export default function MemberFormDialog({
                       ? customer?.storeId || ""
                       : formState.payload?.storeId || ""
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-300 focus:dark:ring-amber-600"
                 >
-                  <option value="" disabled>
+                  <option value="" disabled className="dark:bg-gray-800">
                     請選擇分店
                   </option>
                   {storeLocations.map((store) => (
-                    <option key={store.id} value={store.id}>
+                    <option
+                      key={store.id}
+                      value={store.id}
+                      className="dark:bg-gray-800"
+                    >
                       {store.name}
                     </option>
                   ))}
@@ -205,7 +203,7 @@ export default function MemberFormDialog({
                 <button
                   type="submit"
                   disabled={formState.success === false && !!formState.error}
-                  className="w-full py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="w-full py-2 bg-amber-600 dark:bg-slate-700  text-white rounded-md hover:bg-amber-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {isUpdate ? "更新會員" : "新增會員"}
                 </button>

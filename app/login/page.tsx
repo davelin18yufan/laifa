@@ -44,7 +44,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-gray-100 dark:bg-neutral-800">
+    <div className="flex min-h-screen items-start justify-center bg-gray-100 dark:bg-gray-900/70">
       <div className="w-full max-w-md p-8 space-y-8 mt-16 bg-white dark:bg-gray-900 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold flex items-center gap-1 justify-center text-orange-700 dark:text-amber-500">
           <MdLocalCafe />
@@ -92,7 +92,7 @@ export default function Login() {
               type="text"
               placeholder="請輸入帳號.."
               required
-              className="bg-background w-full outline-none focus-within:border-amber-700 rounded-md p-2  border-1"
+              className="bg-background w-full outline-none focus-within:border-amber-700 focus-within:dark:border-gray-500 rounded-md p-2  border-1"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
@@ -108,7 +108,7 @@ export default function Login() {
                 type={isVisible ? "text" : "password"}
                 id="pass"
                 placeholder="請輸入密碼.."
-                className="bg-background w-full outline-none focus-within:border-amber-700 rounded-md p-2 border-1"
+                className="bg-background w-full outline-none focus-within:border-amber-700 focus-within:dark:border-gray-500 rounded-md p-2 border-1"
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
               />
@@ -124,7 +124,7 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 dark:bg-slate-600  hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 dark:bg-slate-600  hover:bg-indigo-700 hover:dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               disabled={isLoading}
             >
               登入

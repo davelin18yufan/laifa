@@ -7,6 +7,7 @@ import { motion } from "motion/react"
 import { BiWallet } from "react-icons/bi"
 import { GrNotes } from "react-icons/gr"
 import { GiFemale, GiMale } from "react-icons/gi"
+import { cn } from "@/lib/utils"
 
 interface FrequentCustomersProps {
   storeLocations: StoreLocation[]
@@ -57,7 +58,7 @@ export default function FrequentCustomers({
   }, [initialActiveStoreId])
 
   return (
-    <div className="w-80 max-md:w-full bg-neutral-50 shadow-lg flex flex-col">
+    <div className="w-80 max-md:w-full bg-neutral-50 dark:bg-gray-900 shadow-lg flex flex-col text-neutral-900 dark:text-neutral-100">
       {/* Tab Headers */}
       <div
         className="relative flex border-b overflow-x-hidden "
@@ -67,7 +68,10 @@ export default function FrequentCustomers({
           <button
             key={store.id}
             onClick={() => setActiveStoreId(store.id)}
-            className="relative flex-1 py-4 px-2 text-center font-medium text-sm min-w-20 text-gray-600 hover:text-amber-600 cursor-pointer"
+            className={cn(
+              `relative flex-1 py-4 px-2 text-center font-medium text-sm min-w-20 text-gray-600 dark:text-gray-400 hover:text-amber-600 cursor-pointer`,
+              activeStoreId === store.id && "!text-amber-700 dark:text-amber-600"
+            )}
           >
             <div className="flex flex-col items-center justify-center">
               <Store className="h-4 w-4 mb-1" />
@@ -88,7 +92,7 @@ export default function FrequentCustomers({
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="flex items-center gap-2 mb-6">
           <Users className="h-5 w-5 text-amber-700" />
-          <h2 className="text-lg font-semibold text-gray-800">常見會員</h2>
+          <h2 className="text-lg font-semibold ">常見會員</h2>
         </div>
 
         <div className="space-y-4">
@@ -97,11 +101,11 @@ export default function FrequentCustomers({
               <button
                 key={customer.id}
                 onClick={() => onSelectCustomer(customer)}
-                className="w-full p-4 text-left bg-white border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-amber-100 shadow-sm hover:shadow-md ring ring-red-100 flex items-center gap-4 cursor-pointer group "
+                className="w-full p-4 text-left bg-white dark:bg-slate-950 dark:border-0 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-amber-100 hover:dark:bg-gray-800 shadow-sm hover:shadow-md ring ring-red-100 dark:ring-black flex items-center gap-4 cursor-pointer group "
               >
                 <div className="flex-grow">
                   <div className="flex justify-between items-center mb-1">
-                    <p className="font-semibold text-gray-800 group-hover:text-amber-700 flex items-center gap-1">
+                    <p className="font-semibold  group-hover:text-amber-700 flex items-center gap-1">
                       {customer.gender === "female" ? <GiFemale /> : <GiMale />}
                       {customer.name}
                     </p>

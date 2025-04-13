@@ -17,11 +17,11 @@ const icons = [
 
 const Customers: React.FC = () => {
   return (
-    <div className="w-full py-12 bg-slate-900 dark:bg-slate-100">
+    <div className="w-full py-12 dark:bg-slate-900 bg-slate-100">
       <div className="w-full px-4 md:px-8 lg:px-16">
         <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row w-full">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-0 text-gray-50 dark:text-black text-center md:text-left md:w-2/5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-0 dark:text-gray-50 text-black text-center md:text-left md:w-2/5">
               Over 5,000 people has joined Laifa community.
             </h2>
             <div className="flex flex-wrap justify-center md:justify-end gap-6 md:w-2/3">
@@ -30,7 +30,7 @@ const Customers: React.FC = () => {
                   key={index}
                   className="flex flex-col items-center justify-center"
                 >
-                  <Icon className="text-3xl md:text-4xl text-gray-50 dark:text-gray-900" />
+                  <Icon className="text-3xl md:text-4xl dark:text-gray-50 text-gray-900" />
                 </div>
               ))}
             </div>
@@ -39,6 +39,6 @@ const Customers: React.FC = () => {
       </div>
     </div>
   )
-};
+}
 
-export default Customers;
+export default Customers

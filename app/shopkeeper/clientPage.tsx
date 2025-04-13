@@ -16,8 +16,6 @@ import {
 import {
   getMembers,
   upsertMemberNote,
-  addMember,
-  updateMember,
 } from "@/actions/member.action"
 import { recordTransaction } from "@/actions/transaction.action"
 import { SparklesText } from "components/texts/SparklesText"
@@ -38,7 +36,6 @@ import {
   BiMessageAltDetail,
   BiWallet,
 } from "react-icons/bi"
-import GenderSelect from "components/buttons/GenderSelect"
 import MemberFormDialog from "components/MemberFormDialog"
 
 export default function ClientPage({
@@ -215,33 +212,36 @@ export default function ClientPage({
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#F9F5F1] flex max-md:flex-col">
+    <div className="min-h-screen bg-[#F9F5F1] dark:bg-[#191a1f] flex max-md:flex-col text-neutral-900 dark:text-neutral-100">
       {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8 flex max-lg:flex-col justify-between items-center gap-2.5">
             <div className="flex items-center gap-3">
-              <Coffee className="h-8 w-8 text-amber-700" />
+              <Coffee className="h-8 w-8 text-amber-700 dark:text-amber-500" />
               <SparklesText
-                className="text-slate-800 text-5xl text-nowrap"
+                className="text-slate-800 dark:text-amber-100 text-5xl text-nowrap"
                 text={
                   storeLocations.find((store) => store.id === currentStoreId)
                     ?.name || "未選擇分店"
                 }
               />
-              <h1 className="text-2xl font-bold text-amber-900 max-md:hidden">
+              <h1 className="text-2xl font-bold text-amber-900 dark:text-amber-500 max-md:hidden">
                 會員管理
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="storeSelect" className="text-gray-700">
+              <label
+                htmlFor="storeSelect"
+                className="text-gray-700 dark:text-neutral-100"
+              >
                 切換分店：
               </label>
               <select
                 id="storeSelect"
                 value={currentStoreId}
                 onChange={handleStoreChange}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:dark:ring-amber-900"
               >
                 {storeLocations.map((store) => (
                   <option key={store.id} value={store.id}>
@@ -260,8 +260,8 @@ export default function ClientPage({
           </header>
 
           {/* Search Section */}
-          <section className="bg-white rounded-xl p-6 shadow-sm mb-6 relative">
-            <h2 className="absolute left-0 -top-4 text-xl font-semibold mb-4 text-gray-800">
+          <section className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm mb-6 relative">
+            <h2 className="absolute left-0 -top-4 text-xl font-semibold mb-4 ">
               查詢會員餘額
             </h2>
             <div className="flex gap-4">
@@ -269,7 +269,7 @@ export default function ClientPage({
                 <input
                   type="tel"
                   placeholder="請輸入電話號碼 or 姓名"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:dark:ring-amber-900"
                   value={searchInput}
                   onChange={handleSearch}
                 />
@@ -285,18 +285,18 @@ export default function ClientPage({
                 {searchResults.length > 0 && (
                   <div
                     ref={searchResultsRef}
-                    className="absolute z-10 w-full mt-1 bg-slate-50 border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                    className="absolute z-10 w-full mt-1 bg-slate-50 dark:bg-gray-900 border border-gray-200 dark:border-0 rounded-lg shadow-lg max-h-60 overflow-y-auto"
                   >
                     {searchResults.map((result) => (
                       <button
                         key={result.id}
                         onClick={() => handleSelectCustomer(result)}
-                        className="w-full p-3 text-left hover:bg-amber-50 transition-colors cursor-pointer"
+                        className="w-full p-3 text-left hover:bg-amber-50 hover:dark:bg-gray-950 transition-colors cursor-pointer"
                       >
-                        <p className="font-medium text-gray-800">
-                          {result.name}
+                        <p className="font-medium">{result.name}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {result.phone}
                         </p>
-                        <p className="text-sm text-gray-600">{result.phone}</p>
                       </button>
                     ))}
                   </div>
@@ -305,13 +305,13 @@ export default function ClientPage({
             </div>
 
             {currentCustomer && (
-              <div className="mt-4 p-5 bg-neutral-50 rounded-xl shadow-lg text-gray-800 overflow-hidden">
+              <div className="mt-4 p-5 bg-neutral-50 dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden">
                 {/* Header Section  */}
                 <div className="flex justify-between items-center relative z-10">
                   <div className="flex items-center gap-2">
                     <FaUserAlt />
                   </div>
-                  <h3 className="font-bold text-xl text-center text-neutral-800">
+                  <h3 className="font-bold text-xl text-center text-gray-800 dark:text-gray-100">
                     {currentCustomer.name}
                   </h3>
                   <MemberFormDialog
@@ -334,7 +334,7 @@ export default function ClientPage({
                 </div>
 
                 {/* Notes Section */}
-                <div className="mb-2 flex justify-between items-center">
+                <div className="mb-2 flex justify-between items-center ">
                   <BiMessageAltDetail />
                   <Dialog transition={{ duration: 0.3, ease: "easeInOut" }}>
                     <DialogTrigger className="text-amber-600 hover:text-amber-500 flex items-center gap-1 text-sm transition-colors">
@@ -349,9 +349,9 @@ export default function ClientPage({
                       )}
                     </DialogTrigger>
                     <DialogContainer>
-                      <DialogContent className="bg-gray-50 rounded-xl p-6 relative shadow-lg ">
+                      <DialogContent className="bg-gray-50 dark:bg-gray-950 rounded-xl p-6 relative shadow-lg text-gray-700 dark:text-gray-200">
                         <DialogClose className="text-gray-800 hover:text-orange-500" />
-                        <DialogTitle className="text-xl font-bold text-gray-800 mb-4">
+                        <DialogTitle className="text-xl font-bold  mb-4">
                           {currentCustomer.latestNote ? "編輯備註" : "新增備註"}
                         </DialogTitle>
                         <DialogDescription className="space-y-4">
@@ -371,7 +371,7 @@ export default function ClientPage({
                                 currentCustomer.latestNote?.category ||
                                 ""
                               }
-                              className="w-full p-2 border text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
+                              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300 focus:dark:ring-orange-600"
                             />
                             <textarea
                               name="content"
@@ -381,7 +381,7 @@ export default function ClientPage({
                                 currentCustomer.latestNote?.content ||
                                 ""
                               }
-                              className="w-full p-2 border mt-2 text-gray-700  rounded-md min-h-[120px] focus:outline-none focus:ring-2 focus:ring-orange-300"
+                              className="w-full p-2 border mt-2  rounded-md min-h-[120px] focus:outline-none focus:ring-2 focus:ring-orange-300 focus:dark:ring-orange-600"
                             />
                             <button
                               type="submit"
@@ -406,14 +406,14 @@ export default function ClientPage({
                 </div>
 
                 {currentCustomer.latestNote ? (
-                  <div className="p-3 rounded-lg bg-yellow-50 border-b-4 border-yellow-100 shadow-md transform hover:rotate-1  transition-transform">
-                    <div className="flex flex-col gap-2">
+                  <div className="p-3 rounded-lg bg-yellow-50 dark:bg-gray-900 border-b-4 border-yellow-100 dark:border-0 shadow-md transform hover:rotate-1  transition-transform">
+                    <div className="flex flex-col gap-2 text-gray-700 dark:text-gray-200">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-yellow-200 text-slate-700 text-xs font-medium rounded-lg">
+                        <span className="px-2 py-1 bg-yellow-200 dark:bg-slate-900 text-xs font-medium rounded-lg">
                           {currentCustomer.latestNote.category}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 p-2 bg-yellow-50 rounded-md">
+                      <p className="text-sm  p-2 bg-yellow-50 dark:bg-inherit rounded-md">
                         {currentCustomer.latestNote.content}
                       </p>
                     </div>
@@ -434,17 +434,17 @@ export default function ClientPage({
           </section>
 
           {/* Pricing Calculator */}
-          <section className="bg-white rounded-xl p-6 shadow-sm relative">
-            <h2 className="absolute -top-4 left-0 text-xl font-semibold mb-4 text-gray-800">
+          <section className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm relative">
+            <h2 className="absolute -top-4 left-0 text-xl font-semibold mb-4">
               餘額更新
             </h2>
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
                 <button
                   onClick={() => setAmount(Math.max(0, amount - 50))}
-                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                  className="p-2 rounded-lg border border-gray-200 dark:border-0 hover:bg-gray-50"
                 >
-                  <Minus className="h-5 w-5 text-gray-600" />
+                  <Minus className="h-5 w-5 " />
                 </button>
                 <input
                   type="number"
@@ -452,13 +452,13 @@ export default function ClientPage({
                   onChange={(e) =>
                     setAmount(Math.max(0, Number(e.target.value)))
                   }
-                  className="w-32 px-4 py-2 border border-gray-200 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-32 px-4 py-2 border border-gray-200 dark:border-0 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-amber-500 focus:dark:ring-slate-400"
                 />
                 <button
                   onClick={() => setAmount(amount + 50)}
-                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-0"
                 >
-                  <Plus className="h-5 w-5 text-gray-600" />
+                  <Plus className="h-5 w-5" />
                 </button>
               </div>
               <div className="flex gap-4">

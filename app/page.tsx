@@ -18,8 +18,8 @@ export default function HomePage() {
             id="intro"
             leftHalf={<Accordion />}
             rightHalf={
-              <div className="flex flex-col justify-end">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-900 dark:text-white mb-4">
+              <div className="flex flex-col justify-end text-gray-900">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4">
                   快節奏的生活，也該有慢品味的咖啡。
                 </h2>
                 <p className="text-xl font-light">
