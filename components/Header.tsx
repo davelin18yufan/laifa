@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import ThemeSwitch from "./ThemeSwitch"
-import { FaUserLock, FaUserTie } from "react-icons/fa"
+import { FaShoppingCart, FaUserLock, FaUserTie } from "react-icons/fa"
 import { CiLogout } from "react-icons/ci"
 import { signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
@@ -40,6 +40,9 @@ function Header() {
             </li> */}
           </ul>
           <ThemeSwitch />
+          <Link href="/order" className="ml-2.5">
+            <FaShoppingCart className="size-4" />
+          </Link>
           <Link href="/shopkeeper" className="ml-2.5">
             <FaUserTie className="size-4" />
           </Link>
