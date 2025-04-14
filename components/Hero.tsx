@@ -44,10 +44,10 @@ export default function Hero() {
             </LineShadowText>
             <span className="ml-2">咖啡</span>
           </h1>
-          <p className="text-xl bg-gradient-to-r from-slate-300 to-gray-300 bg-clip-text text-transparent mb-12 ml-24 font-light">
+          <p className="md:text-xl bg-gradient-to-r from-slate-300 to-gray-300 bg-clip-text text-transparent mb-12 ml-24 font-light">
             — 品味生活，從一杯好咖啡開始...
           </p>
-          <div className="flex justify-center space-x-6">
+          <div className="flex flex-col md:flex-row justify-center max-md:items-center md:space-x-6">
             <IconButton
               label="會員專區"
               labelAfter="會員專區"
