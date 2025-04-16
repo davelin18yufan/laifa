@@ -1,4 +1,4 @@
-# Free Next JS Starter Template
+
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/Next.js/next-js-saas-website-starter)
 
