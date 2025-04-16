@@ -14,24 +14,9 @@ import { cn } from "@/lib/utils"
 import NumberFlow from "@number-flow/react"
 import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
+import { Customer } from "@/types"
+import { Product, CartItem } from "@/types/Order"
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-}
-
-interface CartItem extends Product {
-  quantity: number
-}
-
-interface Member {
-  member_id: string
-  name: string
-  phone: string
-  balance: number
-}
 
 interface OrderClientPageProps {
   storeId: string
@@ -45,8 +30,8 @@ export default function OrderClientPage({
   const [products] = useState<Product[]>(initialProducts)
   const [cart, setCart] = useState<CartItem[]>([])
   const [searchMember, setSearchMember] = useState("")
-  const [members, setMembers] = useState<Member[]>([])
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+  const [members, setMembers] = useState<Customer[]>([])
+  const [selectedMember, setSelectedMember] = useState<Customer | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "member_balance">(
     "cash"
   )
@@ -59,10 +44,14 @@ export default function OrderClientPage({
       const results = await getMembers(input, undefined)
       setMembers(
         results.map((m) => ({
-          member_id: m.memberId,
+          id: m.memberId,
           name: m.name,
           phone: m.phone,
           balance: m.balance,
+          lastBalanceUpdate: m.lastBalanceUpdate,
+          gender: m.gender,
+          storeId: m.storeId || null,
+          lastVisit: m.lastBalanceUpdate, // Assuming lastBalanceUpdate maps to lastVisit
         }))
       )
     } else {
@@ -112,7 +101,7 @@ export default function OrderClientPage({
         store_id: storeId,
         member_id:
           paymentMethod === "member_balance"
-            ? selectedMember?.member_id
+            ? selectedMember?.id
             : undefined,
         total_amount: totalPrice,
         payment_method: paymentMethod,
@@ -305,7 +294,7 @@ export default function OrderClientPage({
                 <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
                   {members.map((member) => (
                     <button
-                      key={member.member_id}
+                      key={member.id}
                       onClick={() => {
                         setSelectedMember(member)
                         setSearchMember(member.name)

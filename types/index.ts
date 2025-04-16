@@ -17,17 +17,17 @@ export interface StoreLocation {
   customers: Customer[]
 }
 
-export interface Member {
-  memberId: string
-  phone: string
-  balance: number
-  name: string
-  lastBalanceUpdate: string
-  birthday?: string
-  gender: "male" | "female" 
-  latestNote?: Note | null
-  storeId: string
-}
+// export interface Member {
+//   memberId: string
+//   phone: string
+//   balance: number
+//   name: string
+//   lastBalanceUpdate: string
+//   birthday?: string
+//   gender: "male" | "female" 
+//   latestNote?: Note | null
+//   storeId: string
+// }
 
 export interface Note {
   noteId: string

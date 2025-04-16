@@ -9,9 +9,7 @@ import {
   FaCoffee as Coffee,
   FaPlus as Plus,
   FaMinus as Minus,
-  FaUserPlus as UserPlus,
   FaUserAlt,
-  FaEdit,
 } from "react-icons/fa"
 import {
   getMembers,

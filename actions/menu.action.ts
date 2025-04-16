@@ -1,28 +1,7 @@
 "use server"
 import { createClient } from "@/lib/supabase/server"
+import { MenuItem, CreateOrderInput } from "@/types/Order"
 
-interface MenuItem {
-  id: string
-  name: string
-  price: number
-  cost: number
-  is_available: boolean
-  category: string
-}
-
-interface OrderItemInput {
-  menu_item_id: string
-  quantity: number
-  unit_price: number
-}
-
-interface CreateOrderInput {
-  store_id: string
-  member_id?: string
-  total_amount: number
-  payment_method: "cash" | "member_balance"
-  items: OrderItemInput[]
-}
 
 export async function getMenuItems(): Promise<MenuItem[]> {
   const supabase = await createClient()
