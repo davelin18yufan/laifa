@@ -11,9 +11,9 @@ interface Product {
 export default async function OrderPage({
   params,
 }: {
-  params: { storeId: string }
+  params: Promise<{ storeId: string }>
 }) {
-  const { storeId } = params
+  const { storeId } = await params
 
   // 抓取菜單（全域）
   const menuItems = await getMenuItems()
