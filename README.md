@@ -1,5 +1,3 @@
-
-
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/Next.js/next-js-saas-website-starter)
 
 This is a starter template for a SaaS application built with Next.js. It uses the minimum amount of dependencies and tools to get you started.
