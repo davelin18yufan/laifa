@@ -9,23 +9,7 @@ import {
   StorePerformance,
   TopSpendingMember,
 } from "@/types"
-
-// Snake Case 轉 Camel Case 的工具函數
-function snakeToCamel(obj: any): any {
-  if (Array.isArray(obj)) {
-    return obj.map((item) => snakeToCamel(item))
-  }
-  if (obj !== null && typeof obj === "object") {
-    return Object.keys(obj).reduce((acc, key) => {
-      const camelKey = key.replace(/_([a-z])/g, (_, letter) =>
-        letter.toUpperCase()
-      )
-      acc[camelKey] = snakeToCamel(obj[key])
-      return acc
-    }, {} as any)
-  }
-  return obj
-}
+import { snakeToCamel } from "@/lib/utils"
 
 export async function getBusinessOverview(): Promise<BusinessOverview> {
   const supabase = await createClient()

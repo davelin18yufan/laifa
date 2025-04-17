@@ -1,3 +1,4 @@
+import { getAllStores } from "@/actions/store.action"
 import Header from "components/Header"
 import type { Metadata } from "next"
 import { ThemeProvider } from "next-themes"
@@ -9,11 +10,12 @@ export const metadata: Metadata = {
   description: "來發咖啡",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const stores = await getAllStores()
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -32,7 +34,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-black">
-            <Header />
+            <Header stores={stores}/>
             {children}
           </div>
         </ThemeProvider>

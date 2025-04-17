@@ -1,19 +1,41 @@
 "use client"
-import Link from "next/link"
-import ThemeSwitch from "./ThemeSwitch"
-import { FaShoppingCart, FaUserLock, FaUserTie } from "react-icons/fa"
-import { CiLogout } from "react-icons/ci"
+import { StoreLocation } from "@/types"
 import { signOut } from "next-auth/react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 import { BiHomeSmile } from "react-icons/bi"
+import { CiLogout } from "react-icons/ci"
+import { FaShoppingCart, FaUserLock, FaUserTie } from "react-icons/fa"
+import { IoMdArrowDropdown } from "react-icons/io"
+import ThemeSwitch from "./ThemeSwitch"
 
-function Header() {
+function Header({ stores }: { stores: Pick<StoreLocation, "name" | "id">[] }) {
   const path = usePathname()
   const isAuthorized = path === "/shopkeeper" || path === "/admin"
+  const [isOrderMenuOpen, setIsOrderMenuOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const logOut = async () => {
     await signOut({ redirect: true, callbackUrl: "/" })
   }
+
+  // Close the dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOrderMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
   return (
     <header className="bg-slate-200 dark:bg-slate-800 shadow-sm dark:border-b dark:border-gray-900">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -40,9 +62,36 @@ function Header() {
             </li> */}
           </ul>
           <ThemeSwitch />
-          <Link href="/order" className="ml-2.5">
-            <FaShoppingCart className="size-4" />
-          </Link>
+          <div className="relative ml-2.5" ref={dropdownRef}>
+            <button
+              className="flex items-center text-gray-800 dark:text-white"
+              onClick={() => setIsOrderMenuOpen(!isOrderMenuOpen)}
+            >
+              <FaShoppingCart className="size-4" />
+              <IoMdArrowDropdown className="size-4" />
+            </button>
+
+            {isOrderMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10">
+                <div className="py-1">
+                  <p className="block px-4 py-1 border-b text-sm text-gray-500 dark:text-gray-400">
+                    請選擇門市
+                  </p>
+                  <div className="border-t border-gray-200 dark:border-gray-600"></div>
+                  {stores.map((store) => (
+                    <Link
+                      key={store.id}
+                      href={`/order/${store.id}`}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                      onClick={() => setIsOrderMenuOpen(false)}
+                    >
+                      {store.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Link href="/shopkeeper" className="ml-2.5">
             <FaUserTie className="size-4" />
           </Link>
