@@ -43,17 +43,17 @@ export default function OrderClientPage({
     if (input.length > 2) {
       const results = await getMembers(input, undefined)
       setMembers(
-        results.map((m) => ({
-          id: m.memberId,
-          name: m.name,
-          phone: m.phone,
-          balance: m.balance,
-          lastBalanceUpdate: m.lastBalanceUpdate,
-          gender: m.gender,
-          storeId: m.storeId || null,
-          lastVisit: m.lastBalanceUpdate, // Assuming lastBalanceUpdate maps to lastVisit
-        }))
-      )
+              results.map((m) => ({
+                id: m.memberId,
+                name: m.name,
+                phone: m.phone,
+                balance: m.balance,
+                lastBalanceUpdate: m.lastBalanceUpdate,
+                gender: m.gender,
+                storeId: m.storeId || "", 
+                lastVisit: m.lastBalanceUpdate, 
+              }))
+            )
     } else {
       setMembers([])
     }
