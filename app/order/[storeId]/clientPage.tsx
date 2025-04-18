@@ -7,16 +7,30 @@ import {
   FaPlus,
   FaShoppingCart,
   FaCreditCard,
-  FaUser,
   FaSearch,
 } from "react-icons/fa"
 import { cn } from "@/lib/utils"
 import NumberFlow from "@number-flow/react"
 import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
-import { Customer } from "@/types"
-import { Product, CartItem } from "@/types/Order"
 
+interface Product {
+  id: string
+  name: string
+  price: number
+  category: string
+}
+
+interface CartItem extends Product {
+  quantity: number
+}
+
+interface Member {
+  member_id: string
+  name: string
+  phone: string
+  balance: number
+}
 
 interface OrderClientPageProps {
   storeId: string
@@ -30,30 +44,25 @@ export default function OrderClientPage({
   const [products] = useState<Product[]>(initialProducts)
   const [cart, setCart] = useState<CartItem[]>([])
   const [searchMember, setSearchMember] = useState("")
-  const [members, setMembers] = useState<Customer[]>([])
-  const [selectedMember, setSelectedMember] = useState<Customer | null>(null)
+  const [members, setMembers] = useState<Member[]>([])
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "member_balance">(
     "cash"
   )
 
-  // 搜尋會員
   const handleSearchMember = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value
     setSearchMember(input)
     if (input.length > 2) {
       const results = await getMembers(input, undefined)
       setMembers(
-              results.map((m) => ({
-                id: m.memberId,
-                name: m.name,
-                phone: m.phone,
-                balance: m.balance,
-                lastBalanceUpdate: m.lastBalanceUpdate,
-                gender: m.gender,
-                storeId: m.storeId || "", 
-                lastVisit: m.lastBalanceUpdate, 
-              }))
-            )
+        results.map((m) => ({
+          member_id: m.memberId,
+          name: m.name,
+          phone: m.phone,
+          balance: m.balance,
+        }))
+      )
     } else {
       setMembers([])
     }
@@ -101,7 +110,7 @@ export default function OrderClientPage({
         store_id: storeId,
         member_id:
           paymentMethod === "member_balance"
-            ? selectedMember?.id
+            ? selectedMember?.member_id
             : undefined,
         total_amount: totalPrice,
         payment_method: paymentMethod,
@@ -124,13 +133,11 @@ export default function OrderClientPage({
     }
   }
 
-  // 按類別分組
   const categories = Array.from(new Set(products.map((p) => p.category)))
 
   return (
     <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-slate-50 dark:bg-black">
       <div className="flex gap-6">
-        {/* Menu Grid */}
         <div className="flex-1">
           {categories.map((category) => (
             <div key={category} className="mb-8">
@@ -165,7 +172,7 @@ export default function OrderClientPage({
                             {product.name}
                           </h3>
                           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                            ${product.price.toFixed(2)}
+                            NT${product.price.toFixed(2)}
                           </p>
                         </div>
                         <button
@@ -182,8 +189,6 @@ export default function OrderClientPage({
             </div>
           ))}
         </div>
-
-        {/* Cart & Checkout */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -196,15 +201,12 @@ export default function OrderClientPage({
             "max-h-[40rem]"
           )}
         >
-          {/* Cart Header */}
           <div className="flex items-center gap-2 mb-3">
             <FaShoppingCart className="w-4 h-4 text-zinc-500" />
             <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
               購物車 ({totalItems})
             </h2>
           </div>
-
-          {/* Cart Items */}
           <motion.div
             className={cn(
               "flex-1 overflow-y-auto",
@@ -267,7 +269,7 @@ export default function OrderClientPage({
                         layout
                         className="text-xs text-zinc-500 dark:text-zinc-400"
                       >
-                        ${(item.price * item.quantity).toFixed(2)}
+                        NT${(item.price * item.quantity).toFixed(2)}
                       </motion.span>
                     </div>
                   </div>
@@ -275,8 +277,6 @@ export default function OrderClientPage({
               ))}
             </AnimatePresence>
           </motion.div>
-
-          {/* Member Selection */}
           <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
             <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2">
               會員選擇
@@ -294,7 +294,7 @@ export default function OrderClientPage({
                 <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
                   {members.map((member) => (
                     <button
-                      key={member.id}
+                      key={member.member_id}
                       onClick={() => {
                         setSelectedMember(member)
                         setSearchMember(member.name)
@@ -303,7 +303,7 @@ export default function OrderClientPage({
                       }}
                       className="w-full p-2 text-left hover:bg-amber-50"
                     >
-                      {member.name} ({member.phone}) - 餘額: $
+                      {member.name} ({member.phone}) - 餘額: NT$
                       {member.balance.toFixed(2)}
                     </button>
                   ))}
@@ -312,13 +312,11 @@ export default function OrderClientPage({
             </div>
             {selectedMember && (
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                已選擇: {selectedMember.name} (餘額: $
+                已選擇: {selectedMember.name} (餘額: NT$
                 {selectedMember.balance.toFixed(2)})
               </p>
             )}
           </div>
-
-          {/* Payment Method */}
           <div className="mt-3">
             <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2">
               付款方式
@@ -350,8 +348,6 @@ export default function OrderClientPage({
               </button>
             </div>
           </div>
-
-          {/* Cart Summary */}
           <motion.div
             layout
             className={cn(
@@ -372,7 +368,7 @@ export default function OrderClientPage({
                   value={totalPrice}
                   format={{
                     style: "currency",
-                    currency: "USD",
+                    currency: "TWD",
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }}
