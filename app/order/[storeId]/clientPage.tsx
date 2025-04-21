@@ -7,6 +7,7 @@ import {
   FaPlus,
   FaShoppingCart,
   FaCreditCard,
+  FaUser,
   FaSearch,
 } from "react-icons/fa"
 import { cn } from "@/lib/utils"
@@ -144,7 +145,7 @@ export default function OrderClientPage({
               <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
                 {category}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {products
                   .filter((product) => product.category === category)
                   .map((product) => (
