@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import {
   FaMinus,
@@ -14,24 +14,8 @@ import { cn } from "@/lib/utils"
 import NumberFlow from "@number-flow/react"
 import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-}
-
-interface CartItem extends Product {
-  quantity: number
-}
-
-interface Member {
-  member_id: string
-  name: string
-  phone: string
-  balance: number
-}
+import { Product, CartItem, GroupedProduct } from "@/types/Order"
+import { Customer } from "@/types"
 
 interface OrderClientPageProps {
   storeId: string
@@ -45,10 +29,42 @@ export default function OrderClientPage({
   const [products] = useState<Product[]>(initialProducts)
   const [cart, setCart] = useState<CartItem[]>([])
   const [searchMember, setSearchMember] = useState("")
-  const [members, setMembers] = useState<Member[]>([])
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+  const [members, setMembers] = useState<Customer[]>([])
+  const [selectedMember, setSelectedMember] = useState<Customer | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "member_balance">(
     "cash"
+  )
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  // 分組品項
+  const groupedProducts = useMemo(() => {
+    const groups: { [key: string]: GroupedProduct } = {}
+    products.forEach((product) => {
+      const match = product.name.match(/^(.+?)(?:\s(\d+CC|\（.+?\）))?$/)
+      const baseName = match ? match[1].trim() : product.name
+      const variantName = product.name
+
+      if (!groups[baseName]) {
+        groups[baseName] = {
+          baseName,
+          category: product.category,
+          variants: [],
+        }
+      }
+      groups[baseName].variants.push({
+        id: product.id,
+        name: variantName,
+        price: product.price,
+      })
+    })
+    return Object.values(groups).sort((a, b) =>
+      a.baseName.localeCompare(b.baseName)
+    )
+  }, [products])
+
+  const categories = useMemo(
+    () => Array.from(new Set(products.map((p) => p.category))),
+    [products]
   )
 
   const handleSearchMember = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,10 +74,14 @@ export default function OrderClientPage({
       const results = await getMembers(input, undefined)
       setMembers(
         results.map((m) => ({
-          member_id: m.memberId,
+          id: m.memberId,
           name: m.name,
           phone: m.phone,
           balance: m.balance,
+          gender: m.gender,
+          lastVisit: m.lastBalanceUpdate,
+          latestNote: m.latestNote,
+          storeId: m.storeId,
         }))
       )
     } else {
@@ -69,17 +89,26 @@ export default function OrderClientPage({
     }
   }
 
-  const addToCart = (product: Product) => {
+  const addToCart = (variant: { id: string; name: string; price: number }) => {
     setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.id === product.id)
+      const existingItem = currentCart.find((item) => item.id === variant.id)
       if (existingItem) {
         return currentCart.map((item) =>
-          item.id === product.id
+          item.id === variant.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       }
-      return [...currentCart, { ...product, quantity: 1 }]
+      return [
+        ...currentCart,
+        {
+          id: variant.id,
+          name: variant.name,
+          price: variant.price,
+          quantity: 1,
+          category: "",
+        },
+      ]
     })
   }
 
@@ -110,9 +139,7 @@ export default function OrderClientPage({
       const order = await createOrder({
         store_id: storeId,
         member_id:
-          paymentMethod === "member_balance"
-            ? selectedMember?.member_id
-            : undefined,
+          paymentMethod === "member_balance" ? selectedMember?.id : undefined,
         total_amount: totalPrice,
         payment_method: paymentMethod,
         items: cart.map((item) => ({
@@ -134,62 +161,111 @@ export default function OrderClientPage({
     }
   }
 
-  const categories = Array.from(new Set(products.map((p) => p.category)))
-
   return (
     <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-slate-50 dark:bg-black">
-      <div className="flex gap-6">
-        <div className="flex-1">
+      {/* 類別導航 */}
+      <div className="sticky top-0 z-10 bg-slate-50 dark:bg-black py-2 mb-4">
+        <div className="flex gap-2 overflow-x-auto pb-2">
           {categories.map((category) => (
-            <div key={category} className="mb-8">
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                {category}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {products
-                  .filter((product) => product.category === category)
-                  .map((product) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className={cn(
-                        "group p-4 rounded-xl",
-                        "bg-white dark:bg-zinc-900",
-                        "border border-zinc-200 dark:border-zinc-800",
-                        "hover:border-zinc-300 dark:hover:border-zinc-700",
-                        "transition-all duration-200"
-                      )}
-                    >
-                      <div className="flex flex-col gap-3">
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                          <div className="flex items-center justify-center h-full text-zinc-500">
-                            {product.name}
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={cn(
+                "px-4 py-2 rounded-lg text-sm font-medium",
+                activeCategory === category
+                  ? "bg-amber-600 text-white"
+                  : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+              )}
+            >
+              {category}
+            </button>
+          ))}
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-medium",
+              activeCategory === null
+                ? "bg-amber-600 text-white"
+                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+            )}
+          >
+            全部
+          </button>
+        </div>
+      </div>
+
+      <div className="flex gap-6">
+        {/* 品項網格 */}
+        <div className="flex-1">
+          {categories
+            .filter(
+              (category) => !activeCategory || activeCategory === category
+            )
+            .map((category) => (
+              <div key={category} className="mb-8">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 p-2 rounded-lg">
+                  {category}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {groupedProducts
+                    .filter((group) => group.category === category)
+                    .map((group) => (
+                      <motion.div
+                        key={group.baseName}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className={cn(
+                          "group p-4 rounded-xl",
+                          "bg-white dark:bg-zinc-900",
+                          "border border-zinc-200 dark:border-zinc-800",
+                          "hover:border-zinc-300 dark:hover:border-zinc-700",
+                          "transition-all duration-200"
+                        )}
+                      >
+                        <div className="flex flex-col gap-3">
+                          <div className="relative w-full h-32 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                            <div className="flex items-center justify-center h-full text-zinc-500">
+                              {group.baseName}
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                              {group.baseName}
+                            </h3>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                              NT$
+                              {Math.min(
+                                ...group.variants.map((v) => v.price)
+                              ).toFixed(2)}{" "}
+                              起
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            {group.variants.map((variant) => (
+                              <button
+                                key={variant.id}
+                                onClick={() => addToCart(variant)}
+                                className="flex items-center justify-between gap-1.5 text-sm text-white bg-amber-600 rounded-lg py-2 px-3 hover:bg-amber-700"
+                              >
+                                <span>
+                                  {variant.name
+                                    .replace(group.baseName, "")
+                                    .trim() || "標準"}
+                                </span>
+                                <span>NT${variant.price.toFixed(2)}</span>
+                              </button>
+                            ))}
                           </div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                            NT${product.price.toFixed(2)}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => addToCart(product)}
-                          className="mt-2 flex items-center justify-center gap-1.5 text-sm text-white bg-amber-600 rounded-lg py-2 hover:bg-amber-700"
-                        >
-                          <FaPlus className="w-3.5 h-3.5" />
-                          添加
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
+
+        {/* 購物車與結帳 */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -295,7 +371,7 @@ export default function OrderClientPage({
                 <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
                   {members.map((member) => (
                     <button
-                      key={member.member_id}
+                      key={member.id}
                       onClick={() => {
                         setSelectedMember(member)
                         setSearchMember(member.name)
@@ -306,6 +382,11 @@ export default function OrderClientPage({
                     >
                       {member.name} ({member.phone}) - 餘額: NT$
                       {member.balance.toFixed(2)}
+                      <br />
+                      <span className="text-xs text-zinc-500">
+                        最後到店:{" "}
+                        {new Date(member.lastVisit).toLocaleDateString()}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -313,8 +394,20 @@ export default function OrderClientPage({
             </div>
             {selectedMember && (
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                已選擇: {selectedMember.name} (餘額: NT$
-                {selectedMember.balance.toFixed(2)})
+                已選擇: {selectedMember.name} ({selectedMember.phone})
+                <br />
+                餘額: NT${selectedMember.balance.toFixed(2)}
+                <br />
+                性別: {selectedMember.gender === "male" ? "男" : "女"}
+                <br />
+                最後到店:{" "}
+                {new Date(selectedMember.lastVisit).toLocaleDateString()}
+                {selectedMember.latestNote && (
+                  <>
+                    <br />
+                    最新備註: {selectedMember.latestNote.content}
+                  </>
+                )}
               </p>
             )}
           </div>

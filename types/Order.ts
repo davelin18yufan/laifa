@@ -32,3 +32,9 @@ export interface Product {
 export interface CartItem extends Product {
   quantity: number
 }
+
+export interface GroupedProduct {
+  baseName: string
+  category: string
+  variants: { id: string; name: string; price: number }[]
+}
