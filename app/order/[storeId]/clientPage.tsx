@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import {
   FaMinus,
@@ -35,6 +35,7 @@ export default function OrderClientPage({
     "cash"
   )
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const searchResultsRef = useRef<HTMLDivElement>(null)
 
   // 分組品項
   const groupedProducts = useMemo(() => {
@@ -161,6 +162,22 @@ export default function OrderClientPage({
     }
   }
 
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          searchResultsRef.current &&
+          !searchResultsRef.current.contains(event.target as Node)
+        ) {
+          setMembers([])
+        }
+      }
+
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+      }
+    }, [])
+
   return (
     <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-slate-50 dark:bg-black">
       {/* 類別導航 */}
@@ -203,7 +220,7 @@ export default function OrderClientPage({
             )
             .map((category) => (
               <div key={category} className="mb-8">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 p-2 rounded-lg">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
                   {category}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -241,7 +258,7 @@ export default function OrderClientPage({
                               起
                             </p>
                           </div>
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2 overflow-x-auto">
                             {group.variants.map((variant) => (
                               <button
                                 key={variant.id}
@@ -368,7 +385,10 @@ export default function OrderClientPage({
               />
               <FaSearch className="absolute top-1/2 right-3 transform -translate-y-1/2 text-zinc-400" />
               {members.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                <div
+                  className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto"
+                  ref={searchResultsRef}
+                >
                   {members.map((member) => (
                     <button
                       key={member.id}
@@ -378,7 +398,7 @@ export default function OrderClientPage({
                         setPaymentMethod("member_balance")
                         setMembers([])
                       }}
-                      className="w-full p-2 text-left hover:bg-amber-50"
+                      className="w-full p-2 text-left hover:bg-amber-50 dark:hover:bg-neutral-900/50 dark:border-0 rounded-lg"
                     >
                       {member.name} ({member.phone}) - 餘額: NT$
                       {member.balance.toFixed(2)}
@@ -432,13 +452,13 @@ export default function OrderClientPage({
                 className={cn(
                   "flex-1 py-2 rounded-lg",
                   paymentMethod === "member_balance"
-                    ? "bg-amber-600 text-white"
-                    : "bg-zinc-200",
+                    ? "bg-amber-600 text-gray-100"
+                    : "bg-zinc-200/50",
                   !selectedMember && "opacity-50 cursor-not-allowed"
                 )}
                 disabled={!selectedMember}
               >
-                會員餘額
+                會員消費
               </button>
             </div>
           </div>
