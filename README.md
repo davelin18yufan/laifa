@@ -1,4 +1,4 @@
-# Laifa
+# Laifa Coffee Wall
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/Next.js/next-js-saas-website-starter)
 
