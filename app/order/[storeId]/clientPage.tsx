@@ -1,14 +1,11 @@
 "use client"
 
 import { useMemo, useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import {
-  FaMinus,
-  FaPlus,
   FaShoppingCart,
   FaCreditCard,
   FaUser,
-  FaSearch,
 } from "react-icons/fa"
 import { cn } from "@/lib/utils"
 import NumberFlow from "@number-flow/react"
@@ -16,7 +13,10 @@ import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
 import { Product, CartItem, GroupedProduct } from "@/types/Order"
 import { Customer } from "@/types"
-import Image from "next/image"
+
+import ProductGrid from "./ProductGrid"
+import ShoppingCart from "./ShoppingCart"
+import MemberSearch from "./MemberSearch"
 
 interface OrderClientPageProps {
   storeId: string
@@ -38,7 +38,7 @@ export default function OrderClientPage({
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const searchResultsRef = useRef<HTMLDivElement>(null)
 
-  // 分組品項
+  // Group products by base name
   const groupedProducts = useMemo(() => {
     const groups: { [key: string]: GroupedProduct } = {}
     products.forEach((product) => {
@@ -65,34 +65,38 @@ export default function OrderClientPage({
     )
   }, [products])
 
-  // 獲取所有類別, 並去除重複的類別
+  // Get unique categories
   const categories = useMemo(
     () => Array.from(new Set(products.map((p) => p.category))),
     [products]
   )
 
-  const handleSearchMember = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value
-    setSearchMember(input)
-    if (input.length > 2) {
-      const results = await getMembers(input, undefined)
-      setMembers(
-        results.map((m) => ({
-          id: m.memberId,
-          name: m.name,
-          phone: m.phone,
-          balance: m.balance,
-          gender: m.gender,
-          lastVisit: m.lastBalanceUpdate,
-          latestNote: m.latestNote,
-          storeId: m.storeId,
-        }))
-      )
-    } else {
-      setMembers([])
-    }
-  }
+  // Member search handler
+   const handleSearchMember = async (
+     e: React.ChangeEvent<HTMLInputElement>
+   ) => {
+     const input = e.target.value
+     setSearchMember(input)
+     if (input.length > 2) {
+       const results = await getMembers(input, undefined)
+       setMembers(
+         results.map((m) => ({
+           id: m.memberId,
+           name: m.name,
+           phone: m.phone,
+           balance: m.balance,
+           gender: m.gender,
+           lastVisit: m.lastBalanceUpdate,
+           latestNote: m.latestNote,
+           storeId: m.storeId,
+         }))
+       )
+     } else {
+       setMembers([])
+     }
+   }
 
+  // Cart management
   const addToCart = (variant: { id: string; name: string; price: number }) => {
     setCart((currentCart) => {
       const existingItem = currentCart.find((item) => item.id === variant.id)
@@ -130,12 +134,14 @@ export default function OrderClientPage({
     )
   }
 
+  // Cart calculations
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   )
 
+  // Checkout handler
   const handleCheckout = async () => {
     if (cart.length === 0) return
 
@@ -165,6 +171,7 @@ export default function OrderClientPage({
     }
   }
 
+  // Click outside handler for member search results
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -181,20 +188,33 @@ export default function OrderClientPage({
     }
   }, [])
 
+  // Member selection handler
+  const handleMemberSelect = (member: Customer) => {
+    setSelectedMember(member)
+    setSearchMember(member.name)
+    setPaymentMethod("member_balance")
+    setMembers([])
+  }
+
   return (
-    <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-slate-50 dark:bg-black">
-      {/* 類別導航 */}
-      <nav className="sticky top-0 z-10 bg-slate-50 dark:bg-black py-2 mb-4">
+    <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-gray-100 dark:bg-zinc-900">
+      {/* Category Navigation */}
+      <nav className="sticky top-0 z-10 bg-orange-50 dark:bg-zinc-900 py-2 mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium border-b-1 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-neutral-900/50",
+                "px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200",
                 activeCategory === category
-                  ? "bg-amber-700 text-white border-b-2 hover:bg-amber-600"
-                  : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  ? "bg-amber-800 text-white border-b-2 border-amber-900 hover:bg-amber-700"
+                  : "bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100 border border-amber-200 dark:border-amber-800/50",
+                // Wooden style elements
+                "bg-gradient-to-b",
+                activeCategory === category
+                  ? "from-amber-700 to-amber-800"
+                  : "from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-900/50"
               )}
             >
               {category}
@@ -203,10 +223,15 @@ export default function OrderClientPage({
           <button
             onClick={() => setActiveCategory(null)}
             className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium border-b-1 shadow-sm hover:bg-amber-50 dark:hover:bg-neutral-900/50",
+              "px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200",
               activeCategory === null
-                ? "bg-amber-700 text-white border-b-2 hover:bg-amber-600"
-                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                ? "bg-amber-800 text-white border-b-2 border-amber-900 hover:bg-amber-700"
+                : "bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100 border border-amber-200 dark:border-amber-800/50",
+              // Wooden style elements
+              "bg-gradient-to-b",
+              activeCategory === null
+                ? "from-amber-700 to-amber-800"
+                : "from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-900/50"
             )}
           >
             全部
@@ -214,243 +239,74 @@ export default function OrderClientPage({
         </div>
       </nav>
 
-      <div className="flex gap-6">
-        {/* 品項網格 */}
+      <div className="flex gap-6 max-md:flex-col md:gap-4">
+        {/* Product Grid */}
         <div className="flex-1">
-          {categories
-            .filter(
-              (category) => !activeCategory || activeCategory === category
-            )
-            .map((category) => (
-              <div key={category} className="mb-8">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 px-4 py-2 rounded-lg shadow-sm">
-                  {category}
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {groupedProducts
-                    .filter((group) => group.category === category)
-                    .map((group) => (
-                      <motion.div
-                        key={group.baseName}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className={cn(
-                          "group p-4 rounded-xl",
-                          "bg-white dark:bg-zinc-900",
-                          "border border-zinc-300 dark:border-zinc-800",
-                          "hover:border-zinc-400 dark:hover:border-zinc-700",
-                          "transition-all duration-200 group"
-                        )}
-                      >
-                        <div className="flex flex-col gap-3 ">
-                          <div className="relative w-full h-32 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 group-hover:scale-105 transition-transform duration-200">
-                            {group.variants[0]?.image_url ? (
-                              <Image
-                                src={group.variants[0].image_url}
-                                alt={group.baseName}
-                                layout="fill"
-                                objectFit="cover"
-                              />
-                            ) : null}
-                            <div
-                              className={cn(
-                                "flex items-center justify-center h-full text-zinc-500",
-                                group.variants[0]?.image_url && "hidden"
-                              )}
-                            >
-                              {group.baseName}
-                            </div>
-                          </div>
-                          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 group-hover:underline group-hover:underline-offset-2 group-hover:decoration-amber-600 group-hover:decoration-2 group-hover:decoration-solid truncate">
-                            {group.baseName}
-                          </h3>
-                          <div className="flex flex-col gap-2 overflow-x-auto">
-                            {group.variants.map((variant) => (
-                              <button
-                                key={variant.id}
-                                onClick={() => addToCart(variant)}
-                                className="flex items-center justify-between gap-1.5 text-sm text-gray-100 bg-amber-600 rounded-lg py-2 px-3 hover:bg-amber-700"
-                              >
-                                <span>
-                                  {variant.name
-                                    .replace(group.baseName, "")
-                                    .trim() || "標準"}
-                                </span>
-                                <span>NT${variant.price.toFixed(2)}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-              </div>
-            ))}
+          <ProductGrid
+            categories={categories}
+            activeCategory={activeCategory}
+            groupedProducts={groupedProducts}
+            addToCart={addToCart}
+          />
         </div>
 
-        {/* 購物車與結帳 */}
+        {/* Shopping Cart & Checkout */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className={cn(
-            "w-80 flex flex-col",
+            "md:w-80 flex flex-col",
             "p-4 rounded-xl",
-            "bg-white dark:bg-zinc-900",
-            "border border-zinc-200 dark:border-zinc-800",
+            "bg-white dark:bg-zinc-800",
+            "border border-amber-200 dark:border-amber-900/30",
             "sticky top-4",
-            "max-h-[40rem]"
+            "max-h-[48rem]",
+            "shadow-md"
           )}
         >
+          {/* Cart Header */}
           <div className="flex items-center gap-2 mb-3">
-            <FaShoppingCart className="w-4 h-4 text-zinc-500" />
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <FaShoppingCart className="w-4 h-4 text-amber-600" />
+            <h2 className="text-base font-bold text-amber-800 dark:text-amber-200">
               購物車 ({totalItems})
             </h2>
           </div>
-          <motion.div
-            className={cn(
-              "flex-1 overflow-y-auto",
-              "min-h-0",
-              "-mx-4 px-4",
-              "space-y-3"
-            )}
-          >
-            <AnimatePresence initial={false} mode="popLayout">
-              {cart.map((item) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{
-                    opacity: { duration: 0.2 },
-                    layout: { duration: 0.2 },
-                  }}
-                  className={cn(
-                    "flex items-center gap-3",
-                    "p-2 rounded-lg",
-                    "bg-zinc-50 dark:bg-zinc-800/50",
-                    "mb-3"
-                  )}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
-                        {item.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div className="flex items-center gap-1">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                        >
-                          <FaMinus className="w-3 h-3" />
-                        </motion.button>
-                        <motion.span
-                          layout
-                          className="text-xs text-zinc-600 dark:text-zinc-400 min-w-[16px] inline-block text-center"
-                        >
-                          {item.quantity}
-                        </motion.span>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                        >
-                          <FaPlus className="w-3 h-3" />
-                        </motion.button>
-                      </div>
-                      <motion.span
-                        layout
-                        className="text-xs text-zinc-500 dark:text-zinc-400"
-                      >
-                        NT${(item.price * item.quantity).toFixed(2)}
-                      </motion.span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-          <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2 flex items-center gap-2">
+
+          {/* Cart Items */}
+          <ShoppingCart cart={cart} updateQuantity={updateQuantity} />
+
+          {/* Member Selection */}
+          <div className="border-t border-amber-200 dark:border-amber-900/30 pt-3">
+            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
               <FaUser className="w-3 h-3" />
               會員選擇
             </h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="輸入電話或姓名"
-                value={searchMember}
-                onChange={handleSearchMember}
-                className="w-full px-4 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
-              <FaSearch className="absolute top-1/2 right-3 transform -translate-y-1/2 text-zinc-400" />
-              {members.length > 0 && (
-                <div
-                  className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-zinc-200 rounded-lg shadow-lg max-h-40 overflow-y-auto"
-                  ref={searchResultsRef}
-                >
-                  {members.map((member) => (
-                    <button
-                      key={member.id}
-                      onClick={() => {
-                        setSelectedMember(member)
-                        setSearchMember(member.name)
-                        setPaymentMethod("member_balance")
-                        setMembers([])
-                      }}
-                      className="w-full p-2 text-left hover:bg-amber-50 dark:hover:bg-neutral-900/50 dark:border-0 rounded-lg"
-                    >
-                      {member.name} ({member.phone}) - 餘額: NT$
-                      {member.balance.toFixed(2)}
-                      <br />
-                      <span className="text-xs text-zinc-500">
-                        最後到店:{" "}
-                        {new Date(member.lastVisit).toLocaleDateString()}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {selectedMember && (
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                已選擇: {selectedMember.name} ({selectedMember.phone})
-                <br />
-                餘額: NT${selectedMember.balance.toFixed(2)}
-                <br />
-                性別: {selectedMember.gender === "male" ? "男" : "女"}
-                <br />
-                最後到店:{" "}
-                {new Date(selectedMember.lastVisit).toLocaleDateString()}
-                {selectedMember.latestNote && (
-                  <>
-                    <br />
-                    最新備註: {selectedMember.latestNote.content}
-                  </>
-                )}
-              </p>
-            )}
+            <MemberSearch
+              searchMember={searchMember}
+              handleSearchMember={handleSearchMember}
+              members={members}
+              handleMemberSelect={handleMemberSelect}
+              searchResultsRef={searchResultsRef}
+              selectedMember={selectedMember}
+              setSearchMember={setSearchMember}
+              setMembers={setMembers}
+              setSelectedMember={setSelectedMember}
+            />
           </div>
+
+          {/* Payment Method */}
           <div className="mt-3">
-            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2">
+            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
               付款方式
             </h3>
             <div className="flex gap-2">
               <button
                 onClick={() => setPaymentMethod("cash")}
                 className={cn(
-                  "flex-1 py-2 rounded-lg",
+                  "flex-1 py-2 rounded-lg border transition-all duration-200",
                   paymentMethod === "cash"
-                    ? "bg-amber-600 text-white"
-                    : "bg-zinc-200"
+                    ? "bg-amber-600 text-white border-amber-700 shadow-md"
+                    : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-100 border-amber-200 dark:border-amber-900/30"
                 )}
               >
                 現金
@@ -458,10 +314,10 @@ export default function OrderClientPage({
               <button
                 onClick={() => setPaymentMethod("member_balance")}
                 className={cn(
-                  "flex-1 py-2 rounded-lg",
+                  "flex-1 py-2 rounded-lg border transition-all duration-200",
                   paymentMethod === "member_balance"
-                    ? "bg-amber-600 text-gray-100"
-                    : "bg-zinc-200/50",
+                    ? "bg-amber-600 text-white border-amber-700 shadow-md"
+                    : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-100 border-amber-200 dark:border-amber-900/30",
                   !selectedMember && "opacity-50 cursor-not-allowed"
                 )}
                 disabled={!selectedMember}
@@ -470,21 +326,23 @@ export default function OrderClientPage({
               </button>
             </div>
           </div>
+
+          {/* Total & Checkout */}
           <motion.div
             layout
             className={cn(
               "pt-3 mt-3",
-              "border-t border-zinc-200 dark:border-zinc-800",
-              "bg-white dark:bg-zinc-900"
+              "border-t border-amber-200 dark:border-amber-900/30",
+              "bg-white dark:bg-zinc-800"
             )}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
                 總計
               </span>
               <motion.span
                 layout
-                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 inline-block min-w-[80px] text-right"
+                className="text-sm font-semibold text-amber-800 dark:text-amber-200 inline-block min-w-[80px] text-right"
               >
                 <NumberFlow
                   value={totalPrice}
@@ -511,7 +369,7 @@ export default function OrderClientPage({
                   (paymentMethod === "member_balance" &&
                     (!selectedMember || selectedMember.balance < totalPrice))
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-amber-600 hover:bg-amber-700"
+                  : "bg-amber-600 hover:bg-amber-700 shadow-md"
               )}
             >
               <FaCreditCard className="w-4 h-4" />
