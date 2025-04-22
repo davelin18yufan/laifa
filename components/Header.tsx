@@ -72,7 +72,7 @@ function Header({ stores }: { stores: Pick<StoreLocation, "name" | "id">[] }) {
             </button>
 
             {isOrderMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-20">
                 <div className="py-1">
                   <p className="block px-4 py-1 border-b text-sm text-gray-500 dark:text-gray-400">
                     請選擇門市
