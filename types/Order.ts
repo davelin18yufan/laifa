@@ -1,4 +1,3 @@
-
 export interface MenuItem {
   id: string
   name: string
@@ -27,6 +26,7 @@ export interface Product {
   name: string
   price: number
   category: string
+  image_url?: string
 }
 
 export interface CartItem extends Product {
@@ -36,5 +36,5 @@ export interface CartItem extends Product {
 export interface GroupedProduct {
   baseName: string
   category: string
-  variants: { id: string; name: string; price: number }[]
+  variants: { id: string; name: string; price: number; image_url?: string }[]
 }

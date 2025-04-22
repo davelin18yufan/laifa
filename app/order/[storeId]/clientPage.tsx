@@ -16,6 +16,7 @@ import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
 import { Product, CartItem, GroupedProduct } from "@/types/Order"
 import { Customer } from "@/types"
+import Image from "next/image"
 
 interface OrderClientPageProps {
   storeId: string
@@ -56,6 +57,7 @@ export default function OrderClientPage({
         id: product.id,
         name: variantName,
         price: product.price,
+        image_url: product.image_url,
       })
     })
     return Object.values(groups).sort((a, b) =>
@@ -63,6 +65,7 @@ export default function OrderClientPage({
     )
   }, [products])
 
+  // 獲取所有類別, 並去除重複的類別
   const categories = useMemo(
     () => Array.from(new Set(products.map((p) => p.category))),
     [products]
@@ -162,35 +165,35 @@ export default function OrderClientPage({
     }
   }
 
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (
-          searchResultsRef.current &&
-          !searchResultsRef.current.contains(event.target as Node)
-        ) {
-          setMembers([])
-        }
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchResultsRef.current &&
+        !searchResultsRef.current.contains(event.target as Node)
+      ) {
+        setMembers([])
       }
+    }
 
-      document.addEventListener("mousedown", handleClickOutside)
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-      }
-    }, [])
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-slate-50 dark:bg-black">
       {/* 類別導航 */}
-      <div className="sticky top-0 z-10 bg-slate-50 dark:bg-black py-2 mb-4">
+      <nav className="sticky top-0 z-10 bg-slate-50 dark:bg-black py-2 mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium",
+                "px-4 py-2 rounded-lg text-sm font-medium border-b-1 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-neutral-900/50",
                 activeCategory === category
-                  ? "bg-amber-600 text-white"
+                  ? "bg-amber-700 text-white border-b-2 hover:bg-amber-600"
                   : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
               )}
             >
@@ -200,16 +203,16 @@ export default function OrderClientPage({
           <button
             onClick={() => setActiveCategory(null)}
             className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium",
+              "px-4 py-2 rounded-lg text-sm font-medium border-b-1 shadow-sm hover:bg-amber-50 dark:hover:bg-neutral-900/50",
               activeCategory === null
-                ? "bg-amber-600 text-white"
+                ? "bg-amber-700 text-white border-b-2 hover:bg-amber-600"
                 : "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
             )}
           >
             全部
           </button>
         </div>
-      </div>
+      </nav>
 
       <div className="flex gap-6">
         {/* 品項網格 */}
@@ -220,7 +223,7 @@ export default function OrderClientPage({
             )
             .map((category) => (
               <div key={category} className="mb-8">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 bg-amber-100 dark:bg-amber-900/20 px-4 py-2 rounded-lg shadow-sm">
                   {category}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -235,35 +238,39 @@ export default function OrderClientPage({
                         className={cn(
                           "group p-4 rounded-xl",
                           "bg-white dark:bg-zinc-900",
-                          "border border-zinc-200 dark:border-zinc-800",
-                          "hover:border-zinc-300 dark:hover:border-zinc-700",
-                          "transition-all duration-200"
+                          "border border-zinc-300 dark:border-zinc-800",
+                          "hover:border-zinc-400 dark:hover:border-zinc-700",
+                          "transition-all duration-200 group"
                         )}
                       >
-                        <div className="flex flex-col gap-3">
-                          <div className="relative w-full h-32 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                            <div className="flex items-center justify-center h-full text-zinc-500">
+                        <div className="flex flex-col gap-3 ">
+                          <div className="relative w-full h-32 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 group-hover:scale-105 transition-transform duration-200">
+                            {group.variants[0]?.image_url ? (
+                              <Image
+                                src={group.variants[0].image_url}
+                                alt={group.baseName}
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            ) : null}
+                            <div
+                              className={cn(
+                                "flex items-center justify-center h-full text-zinc-500",
+                                group.variants[0]?.image_url && "hidden"
+                              )}
+                            >
                               {group.baseName}
                             </div>
                           </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                              {group.baseName}
-                            </h3>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              NT$
-                              {Math.min(
-                                ...group.variants.map((v) => v.price)
-                              ).toFixed(2)}{" "}
-                              起
-                            </p>
-                          </div>
+                          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 group-hover:underline group-hover:underline-offset-2 group-hover:decoration-amber-600 group-hover:decoration-2 group-hover:decoration-solid truncate">
+                            {group.baseName}
+                          </h3>
                           <div className="flex flex-col gap-2 overflow-x-auto">
                             {group.variants.map((variant) => (
                               <button
                                 key={variant.id}
                                 onClick={() => addToCart(variant)}
-                                className="flex items-center justify-between gap-1.5 text-sm text-white bg-amber-600 rounded-lg py-2 px-3 hover:bg-amber-700"
+                                className="flex items-center justify-between gap-1.5 text-sm text-gray-100 bg-amber-600 rounded-lg py-2 px-3 hover:bg-amber-700"
                               >
                                 <span>
                                   {variant.name
@@ -297,7 +304,7 @@ export default function OrderClientPage({
         >
           <div className="flex items-center gap-2 mb-3">
             <FaShoppingCart className="w-4 h-4 text-zinc-500" />
-            <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
               購物車 ({totalItems})
             </h2>
           </div>
@@ -372,7 +379,8 @@ export default function OrderClientPage({
             </AnimatePresence>
           </motion.div>
           <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2">
+            <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2 flex items-center gap-2">
+              <FaUser className="w-3 h-3" />
               會員選擇
             </h3>
             <div className="relative">

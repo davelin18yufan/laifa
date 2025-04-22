@@ -5,8 +5,8 @@ export interface Customer {
   name: string
   gender: "male" | "female"
   lastVisit: string
-  // transactionCount?: number
-  // totalSpent?: number
+  transactionCount?: number
+  totalSpent?: number
   latestNote?: Note | null
   storeId: string
 }
