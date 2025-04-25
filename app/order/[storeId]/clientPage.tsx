@@ -17,9 +17,10 @@ import { Customer, StoreLocation } from "@/types"
 import ProductGrid from "./ProductGrid"
 import ShoppingCart from "./ShoppingCart"
 import MemberSearch from "./MemberSearch"
+import { ColourfulText } from "components/texts/ColourfulText"
 
 interface OrderClientPageProps {
-  store: StoreLocation
+  store: Pick<StoreLocation, "id" | "name">
   initialProducts: Product[]
 }
 
@@ -190,11 +191,10 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
     setPaymentMethod("member_balance")
     setMembers([])
   }
-
   return (
     <div className="w-full mx-auto min-h-screen py-2 px-4 md:px-6 bg-gray-100 dark:bg-zinc-900">
       {/* Category Navigation */}
-      <nav className="sticky top-0 z-10 bg-orange-50 dark:bg-zinc-900 py-2 mb-4">
+      <nav className="flex justify-between items-center sticky top-0 z-10 bg-orange-50 dark:bg-zinc-900 py-2 mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categories.map((category) => (
             <button
@@ -232,6 +232,9 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
             全部
           </button>
         </div>
+        <h3 className="max-md:hidden md:text-xl lg:text-3xl font-bold text-center text-slate-700 dark:text-gray-200 relative z-2 font-sans">
+          來發 <ColourfulText text={store.name.substring(2, 5)} />
+        </h3>
       </nav>
 
       <div className="flex gap-6 max-md:flex-col md:gap-4">

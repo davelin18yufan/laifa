@@ -9,7 +9,9 @@ export async function getAllStores(): Promise<
 > {
   const supabase = await createClient()
 
-  const { data, error } = await supabase.from("stores").select("store_id, store_name")
+  const { data, error } = await supabase
+    .from("stores")
+    .select("store_id, store_name")
 
   if (error) {
     console.error("Error fetching stores:", error.message, error.code)
@@ -25,7 +27,9 @@ export async function getAllStores(): Promise<
   })
 }
 
-export async function getStoreById(storeId: string): Promise<StoreLocation> {
+export async function getStoreById(
+  storeId: string
+): Promise<Pick<StoreLocation, "id" | "name">> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -38,6 +42,10 @@ export async function getStoreById(storeId: string): Promise<StoreLocation> {
     console.error("Error fetching store:", error.message, error.code)
     throw new Error(`Failed to fetch store: ${error.message}`)
   }
+  const camelStore = snakeToCamel(data)
 
-  return snakeToCamel(data)
+  return {
+    id: camelStore.storeId,
+    name: camelStore.storeName,
+  }
 }

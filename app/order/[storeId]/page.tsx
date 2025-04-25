@@ -1,13 +1,7 @@
 import { getMenuItems } from "@/actions/menu.action"
 import { getStoreById } from "@/actions/store.action"
 import OrderClientPage from "./clientPage"
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-}
+import { type Product } from "@/types/Order"
 
 export default async function OrderPage({
   params,
