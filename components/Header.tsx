@@ -2,16 +2,18 @@
 import { StoreLocation } from "@/types"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { BiHomeSmile } from "react-icons/bi"
 import { CiLogout } from "react-icons/ci"
 import { FaShoppingCart, FaUserLock, FaUserTie } from "react-icons/fa"
 import { IoMdArrowDropdown } from "react-icons/io"
 import ThemeSwitch from "./ThemeSwitch"
+import { cn } from "@/lib/utils"
 
 function Header({ stores }: { stores: Pick<StoreLocation, "name" | "id">[] }) {
   const path = usePathname()
+  const storeId = path.split("/")[2]
   const isAuthorized = path === "/shopkeeper" || path === "/admin"
   const [isOrderMenuOpen, setIsOrderMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -82,7 +84,11 @@ function Header({ stores }: { stores: Pick<StoreLocation, "name" | "id">[] }) {
                     <Link
                       key={store.id}
                       href={`/order/${store.id}`}
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                      className={cn(
+                        "block px-4 py-2",
+                        "text-sm text-gray-700dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600",
+                        storeId === store.id && "bg-gray-100 text-amber-600 dark:bg-gray-600"
+                      )}
                       onClick={() => setIsOrderMenuOpen(false)}
                     >
                       {store.name}
