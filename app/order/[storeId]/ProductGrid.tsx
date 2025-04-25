@@ -44,7 +44,7 @@ export default function ProductGrid({
                     )}
                   >
                     <div className="flex flex-col gap-3">
-                      <div className="relative w-full h-32 rounded-lg overflow-hidden bg-amber-50 dark:bg-amber-900/20 group-hover:scale-110 transition-transform duration-300">
+                      <div className="relative w-full h-32 rounded-lg overflow-hidden bg-amber-50 dark:bg-gray-900/30 group-hover:scale-110 transition-transform duration-300">
                         {group.variants[0]?.image_url ? (
                           <Image
                             src={group.variants[0].image_url}

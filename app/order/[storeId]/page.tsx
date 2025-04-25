@@ -1,4 +1,5 @@
 import { getMenuItems } from "@/actions/menu.action"
+import { getStoreById } from "@/actions/store.action"
 import OrderClientPage from "./clientPage"
 
 interface Product {
@@ -15,8 +16,11 @@ export default async function OrderPage({
 }) {
   const { storeId } = await params
 
-  // 抓取菜單（全域）
-  const menuItems = await getMenuItems()
+  // 抓取菜單
+  const [menuItems, store] = await Promise.all([
+    getMenuItems(),
+    getStoreById(storeId),
+  ])
 
   // 轉換資料格式
   const products: Product[] = menuItems.map((item) => ({
@@ -26,5 +30,5 @@ export default async function OrderPage({
     category: item.category,
   }))
 
-  return <OrderClientPage storeId={storeId} initialProducts={products} />
+  return <OrderClientPage store={store} initialProducts={products} />
 }

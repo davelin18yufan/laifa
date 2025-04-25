@@ -12,21 +12,18 @@ import NumberFlow from "@number-flow/react"
 import { getMembers } from "@/actions/member.action"
 import { createOrder } from "@/actions/menu.action"
 import { Product, CartItem, GroupedProduct } from "@/types/Order"
-import { Customer } from "@/types"
+import { Customer, StoreLocation } from "@/types"
 
 import ProductGrid from "./ProductGrid"
 import ShoppingCart from "./ShoppingCart"
 import MemberSearch from "./MemberSearch"
 
 interface OrderClientPageProps {
-  storeId: string
+  store: StoreLocation
   initialProducts: Product[]
 }
 
-export default function OrderClientPage({
-  storeId,
-  initialProducts,
-}: OrderClientPageProps) {
+export default function OrderClientPage({ store, initialProducts }: OrderClientPageProps) {
   const [products] = useState<Product[]>(initialProducts)
   const [cart, setCart] = useState<CartItem[]>([])
   const [searchMember, setSearchMember] = useState("")
@@ -72,29 +69,27 @@ export default function OrderClientPage({
   )
 
   // Member search handler
-   const handleSearchMember = async (
-     e: React.ChangeEvent<HTMLInputElement>
-   ) => {
-     const input = e.target.value
-     setSearchMember(input)
-     if (input.length > 2) {
-       const results = await getMembers(input, undefined)
-       setMembers(
-         results.map((m) => ({
-           id: m.memberId,
-           name: m.name,
-           phone: m.phone,
-           balance: m.balance,
-           gender: m.gender,
-           lastVisit: m.lastBalanceUpdate,
-           latestNote: m.latestNote,
-           storeId: m.storeId,
-         }))
-       )
-     } else {
-       setMembers([])
-     }
-   }
+  const handleSearchMember = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value
+    setSearchMember(input)
+    if (input.length > 2) {
+      const results = await getMembers(input, undefined)
+      setMembers(
+        results.map((m) => ({
+          id: m.memberId,
+          name: m.name,
+          phone: m.phone,
+          balance: m.balance,
+          gender: m.gender,
+          lastVisit: m.lastBalanceUpdate,
+          latestNote: m.latestNote,
+          storeId: m.storeId,
+        }))
+      )
+    } else {
+      setMembers([])
+    }
+  }
 
   // Cart management
   const addToCart = (variant: { id: string; name: string; price: number }) => {
@@ -147,7 +142,7 @@ export default function OrderClientPage({
 
     try {
       const order = await createOrder({
-        store_id: storeId,
+        store_id: store?.id,
         member_id:
           paymentMethod === "member_balance" ? selectedMember?.id : undefined,
         total_amount: totalPrice,

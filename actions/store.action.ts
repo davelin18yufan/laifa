@@ -24,3 +24,20 @@ export async function getAllStores(): Promise<
     }
   })
 }
+
+export async function getStoreById(storeId: string): Promise<StoreLocation> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("store_id", storeId)
+    .single()
+
+  if (error) {
+    console.error("Error fetching store:", error.message, error.code)
+    throw new Error(`Failed to fetch store: ${error.message}`)
+  }
+
+  return snakeToCamel(data)
+}
