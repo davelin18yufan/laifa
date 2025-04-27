@@ -8,16 +8,16 @@ export interface MenuItem {
 }
 
 export interface OrderItemInput {
-  menu_item_id: string
+  menuItemId: string
   quantity: number
-  unit_price: number
+  unitPrice: number
 }
 
 export interface CreateOrderInput {
-  store_id: string
-  member_id?: string
-  total_amount: number
-  payment_method: "cash" | "member_balance"
+  storeId: string
+  memberId?: string
+  totalAmount: number
+  paymentMethod: "cash" | "member_balance"
   items: OrderItemInput[]
 }
 
@@ -26,7 +26,7 @@ export interface Product {
   name: string
   price: number
   category: string
-  image_url?: string
+  imageUrl?: string
 }
 
 export interface CartItem extends Product {

@@ -55,7 +55,7 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
         id: product.id,
         name: variantName,
         price: product.price,
-        image_url: product.image_url,
+        image_url: product.imageUrl,
       })
     })
     return Object.values(groups).sort((a, b) =>
@@ -143,15 +143,15 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
 
     try {
       const order = await createOrder({
-        store_id: store?.id,
-        member_id:
+        storeId: store?.id,
+        memberId:
           paymentMethod === "member_balance" ? selectedMember?.id : undefined,
-        total_amount: totalPrice,
-        payment_method: paymentMethod,
+        totalAmount: totalPrice,
+        paymentMethod: paymentMethod,
         items: cart.map((item) => ({
-          menu_item_id: item.id,
+          menuItemId: item.id,
           quantity: item.quantity,
-          unit_price: item.price,
+          unitPrice: item.price,
         })),
       })
 
