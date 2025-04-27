@@ -2,7 +2,7 @@
 import { StoreLocation } from "@/types"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { BiHomeSmile } from "react-icons/bi"
 import { CiLogout } from "react-icons/ci"
