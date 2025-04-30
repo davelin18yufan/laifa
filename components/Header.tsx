@@ -40,7 +40,7 @@ function Header({ stores }: { stores: Pick<StoreLocation, "name" | "id">[] }) {
   }, [])
   return (
     <header className="bg-slate-200 dark:bg-slate-800 shadow-sm dark:border-b dark:border-gray-900">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="mx-auto px-4 md:px-6 lg:px-10 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <span className="text-xl dark:text-gray-100">Laifa Coffee Wall</span>
         </div>
