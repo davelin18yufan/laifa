@@ -101,35 +101,35 @@ export default function MemberSearch({
 
       {/* Selected Member Info */}
       {selectedMember && (
-        <div className="mt-2 p-2 rounded-lg border border-amber-200 dark:border-amber-900/30">
-          <div className="flex justify-between items-center">
+        <div className="p-4 rounded-lg border border-amber-200 dark:border-amber-900/30 shadow-sm">
+          <div className="flex justify-between items-start gap-3">
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-amber-800 dark:text-amber-200 truncate">
+              <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">
                 {selectedMember.name}
-              </div>
-              <div className="text-xs text-amber-700 dark:text-slate-400 truncate">
+              </p>
+              <p className="text-xs text-amber-700 dark:text-slate-400">
                 {selectedMember.phone}
-              </div>
+              </p>
             </div>
-            <div className="text-right ml-2">
-              <div className="font-medium text-amber-800 dark:text-amber-200 whitespace-nowrap">
+            <div className="text-right">
+              <p className="font-medium text-amber-800 dark:text-amber-200 whitespace-nowrap">
                 NT$ {selectedMember.balance.toFixed(0)}
-              </div>
-              <div className="text-xs text-amber-700 dark:text-amber-400 whitespace-nowrap">
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 whitespace-nowrap mt-1">
                 {selectedMember.gender === "male" ? "男" : "女"}
-              </div>
+              </p>
             </div>
           </div>
 
-          <div className="text-xs text-amber-700 dark:text-slate-400 mt-1">
+          <div className="text-xs text-amber-700 dark:text-slate-400 mt-1.5">
             最後到店: {new Date(selectedMember.lastVisit).toLocaleDateString()}
           </div>
 
           {selectedMember.latestNote && (
-            <div className="mt-1.5 text-xs bg-amber-100 dark:bg-amber-900/20 p-1.5 rounded border-l-2 border-amber-500">
-              <span className="font-medium">備註:</span>
+            <div className="mt-2 text-xs bg-amber-100/70 dark:bg-amber-900/30 p-2 rounded-md border-l-2 border-amber-500">
+              <span className="font-medium block mb-1">備註:</span>
               <div
-                className="mt-0.5 text-amber-800 dark:text-amber-300 line-clamp-2 overflow-hidden"
+                className="text-amber-800 dark:text-amber-300 line-clamp-2 overflow-hidden"
                 title={selectedMember.latestNote.content}
               >
                 {selectedMember.latestNote.content}

@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils"
 import NumberFlow from "@number-flow/react"
 import { getMembers } from "@/actions/member.action"
-import { createOrder } from "@/actions/menu.action"
+import { createOrder } from "@/actions/transaction.action"
 import { Product, CartItem, GroupedProduct } from "@/types/Order"
 import { Customer, StoreLocation } from "@/types"
 
@@ -154,6 +154,8 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
           unitPrice: item.price,
         })),
       })
+
+      console.log("訂單已建立:", order)
 
       alert("結帳成功！")
       setCart([])

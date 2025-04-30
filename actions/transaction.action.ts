@@ -101,18 +101,20 @@ export async function createOrder(input: CreateOrderInput) {
   }
   if (
     input.paymentMethod === "member_balance" &&
-    (!input.memberId || input.memberId === "")
+    (!input.memberId ||
+      input.memberId === "")
   ) {
-    throw new Error("會員結帳必須提供會員 ID")
+    throw new Error("會員結帳必須提供有效的會員 ID")
   }
-  if (input.items.some(item => item.quantity <= 0 || item.unitPrice <= 0)) {
-    throw new Error("訂單項目數量或單價無效")
+  for (const item of input.items) {
+    if (item.quantity <= 0 || item.unitPrice <= 0) {
+      throw new Error("訂單項目數量或單價無效")
+    }
   }
 
-  // 開始交易
+  // 開始事務
   try {
     // 插入訂單
-    console.log(input)
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -129,15 +131,15 @@ export async function createOrder(input: CreateOrderInput) {
 
     if (orderError || !orderData) {
       console.error("Error creating order:", orderError)
-      throw new Error("無法創建訂單")
+      throw new Error(orderError?.message || "無法創建訂單")
     }
 
     // 插入訂單明細
     const orderItems = input.items.map((item) => ({
-      orderId: orderData.id,
-      menuItemId: item.menuItemId,
+      order_id: orderData.id,
+      menu_item_id: item.menuItemId, // 修正：正確映射到 menu_item_id
       quantity: item.quantity,
-      unitPrice: item.unitPrice,
+      unit_price: item.unitPrice,
     }))
 
     const { error: itemsError } = await supabase
@@ -146,7 +148,7 @@ export async function createOrder(input: CreateOrderInput) {
 
     if (itemsError) {
       console.error("Error creating order items:", itemsError)
-      throw new Error("無法創建訂單明細")
+      throw new Error(itemsError?.message || "無法創建訂單明細")
     }
 
     // 記錄交易
@@ -169,7 +171,7 @@ export async function createOrder(input: CreateOrderInput) {
 
     if (transactionError) {
       console.error("Error creating transaction:", transactionError)
-      throw new Error("無法記錄交易")
+      throw new Error(transactionError?.message || "無法記錄交易")
     }
 
     // 處理會員餘額結帳
@@ -211,7 +213,7 @@ export async function createOrder(input: CreateOrderInput) {
     console.log(
       `Order created: ID=${orderData.id}, Payment=${
         input.paymentMethod
-      }, Member=${input.memberId || "none"}`
+      }, Member=${input.memberId || "none"}, Store=${input.storeId}`
     )
 
     return {
