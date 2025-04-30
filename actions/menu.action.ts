@@ -22,10 +22,10 @@ export async function createOrder(input: CreateOrderInput) {
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .insert({
-      store_id: input.store_id,
-      member_id: input.member_id,
-      total_amount: input.total_amount,
-      payment_method: input.payment_method,
+      store_id: input.storeId,
+      member_id: input.memberId,
+      total_amount: input.totalAmount,
+      payment_method: input.paymentMethod,
       status: "completed",
     })
     .select()
@@ -36,9 +36,9 @@ export async function createOrder(input: CreateOrderInput) {
   // 插入訂單明細
   const orderItems = input.items.map((item) => ({
     order_id: orderData.id,
-    menu_item_id: item.menu_item_id,
+    menu_item_id: item.menuItemId,
     quantity: item.quantity,
-    unit_price: item.unit_price,
+    unit_price: item.unitPrice,
   }))
 
   const { error: itemsError } = await supabase
@@ -48,16 +48,16 @@ export async function createOrder(input: CreateOrderInput) {
   if (itemsError) throw new Error(itemsError.message)
 
   // 如果是會員餘額結帳，更新 transactions 和 members
-  if (input.payment_method === "member_balance" && input.member_id) {
+  if (input.paymentMethod === "member_balance" && input.memberId) {
     const { data: member, error: memberError } = await supabase
       .from("members")
       .select("balance")
-      .eq("member_id", input.member_id)
+      .eq("member_id", input.memberId)
       .single()
 
     if (memberError || !member) throw new Error("會員不存在")
 
-    const newBalance = member.balance - input.total_amount
+    const newBalance = member.balance - input.totalAmount
     if (newBalance < 0) throw new Error("餘額不足")
 
     await supabase
@@ -66,13 +66,13 @@ export async function createOrder(input: CreateOrderInput) {
         balance: newBalance,
         last_balance_update: new Date().toISOString(),
       })
-      .eq("member_id", input.member_id)
+      .eq("member_id", input.memberId)
 
     await supabase.from("transactions").insert({
-      member_id: input.member_id,
-      store_id: input.store_id,
+      member_id: input.memberId,
+      store_id: input.storeId,
       type: "order",
-      amount: -input.total_amount,
+      amount: -input.totalAmount,
       new_balance: newBalance,
       order_id: orderData.id,
     })

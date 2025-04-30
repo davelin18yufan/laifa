@@ -143,7 +143,7 @@ export default function OrderClientPage({ store, initialProducts }: OrderClientP
 
     try {
       const order = await createOrder({
-        storeId: store?.id,
+        storeId: store.id,
         memberId:
           paymentMethod === "member_balance" ? selectedMember?.id : undefined,
         totalAmount: totalPrice,

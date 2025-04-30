@@ -112,6 +112,7 @@ export async function createOrder(input: CreateOrderInput) {
   // 開始交易
   try {
     // 插入訂單
+    console.log(input)
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -133,10 +134,10 @@ export async function createOrder(input: CreateOrderInput) {
 
     // 插入訂單明細
     const orderItems = input.items.map((item) => ({
-      order_id: orderData.id,
-      menu_item_id: item.menuItemId,
+      orderId: orderData.id,
+      menuItemId: item.menuItemId,
       quantity: item.quantity,
-      unit_price: item.unitPrice,
+      unitPrice: item.unitPrice,
     }))
 
     const { error: itemsError } = await supabase
