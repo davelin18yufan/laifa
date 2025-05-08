@@ -1,6 +1,6 @@
 "use server"
 import { createClient } from "@/lib/supabase/server"
-import { MenuItem, CreateOrderInput } from "@/types/Order"
+import { MenuItem } from "@/types/Order"
 
 
 export async function getMenuItems(): Promise<MenuItem[]> {
