@@ -61,7 +61,8 @@ export default function Hero() {
             <IconButton
               label="分店查詢"
               labelAfter="分店查詢"
-              href="https://www.google.com/maps/search/%E4%BE%86%E7%99%BC/@24.9742322,121.4085388,13z?entry=ttu&g_ep=EgoyMDI1MDMxOS4yIKXMDSoASAFQAw%3D%3D"
+              openInNewTab={true}
+              href="https://www.google.com/maps/search/laifa+coffee/@24.9742209,121.4083671,13z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI1MDUwNy4wIKXMDSoASAFQAw%3D%3D"
             />
           </div>
         </motion.div>
