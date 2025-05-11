@@ -12,7 +12,7 @@ export default async function OrderPage({
 
   // 抓取菜單
   const [menuItems, store] = await Promise.all([
-    getMenuItems(),
+    getMenuItems(true),
     getStoreById(storeId),
   ])
 

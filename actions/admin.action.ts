@@ -65,6 +65,26 @@ export async function getMenuItems(isAvailable?: boolean): Promise<MenuItem[]> {
   return formattedData || [];
 }
 
+// 獲取菜單類別
+export async function getMenuCategories(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select("category")
+    .not("category", "is", null)
+    .order("category");
+
+  if (error) {
+    console.error("Error fetching menu categories:", error);
+    throw new Error("無法獲取菜單類別");
+  }
+
+  const categories = Array.from(
+    new Set(data.map((item) => item.category as string))
+  ).sort();
+  return categories;
+}
+
 // 新增菜單項目
 export async function createMenuItem(input: {
   name: string;
@@ -152,4 +172,22 @@ export async function updateMenuItem(
   }
 
   return data;
+}
+
+
+// 刪除菜單項目
+export async function deleteMenuItem(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("menu_items")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting menu item:", error);
+    if (error.code === "23503") {
+      throw new Error("無法刪除，因為此項目已被訂單使用");
+    }
+    throw new Error(error.message || "無法刪除菜單項目");
+  }
 }
