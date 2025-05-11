@@ -18,7 +18,8 @@ export default function ShoppingCart({
         "flex-1 overflow-y-auto",
         "min-h-0",
         "-mx-4 px-4",
-        "space-y-3"
+        "space-y-3",
+        "font-mono"
       )}
     >
       <AnimatePresence initial={false} mode="popLayout">

@@ -21,7 +21,7 @@ export default function ProductGrid({
       {categories
         .filter((category) => !activeCategory || activeCategory === category)
         .map((category) => (
-          <div key={category} className="mb-8">
+          <div key={category} className="mb-8 font-mono">
             <h2 className="text-2xl font-bold text-amber-900 dark:text-amber-200 mb-4 bg-gradient-to-r from-amber-200 to-amber-100 dark:from-amber-900/30 dark:to-amber-900/20 px-4 py-2 rounded-lg shadow-sm border-l-4 border-amber-700">
               {category}
             </h2>
@@ -77,7 +77,7 @@ export default function ProductGrid({
                                 .replace(group.baseName, "")
                                 .trim() || "標準"}
                             </span>
-                            <span>NT${variant.price.toFixed(2)}</span>
+                            <span>NT${variant.price}</span>
                           </button>
                         ))}
                       </div>
