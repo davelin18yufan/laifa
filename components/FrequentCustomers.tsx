@@ -13,6 +13,7 @@ interface FrequentCustomersProps {
   storeLocations: StoreLocation[]
   onSelectCustomer: (customer: Customer) => void
   initialActiveStoreId?: string
+  allStores: Pick<StoreLocation, "id" | "name">[]
 }
 
 const handleDragTab = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -41,6 +42,7 @@ export default function FrequentCustomers({
   storeLocations,
   onSelectCustomer,
   initialActiveStoreId,
+  allStores
 }: FrequentCustomersProps) {
   const [activeStoreId, setActiveStoreId] = useState(initialActiveStoreId || "")
 
@@ -64,7 +66,7 @@ export default function FrequentCustomers({
         className="relative flex border-b overflow-x-hidden "
         onMouseDown={handleDragTab}
       >
-        {storeLocations.map((store) => (
+        {allStores.map((store) => (
           <button
             key={store.id}
             onClick={() => setActiveStoreId(store.id)}
@@ -101,7 +103,7 @@ export default function FrequentCustomers({
               <button
                 key={customer.id}
                 onClick={() => onSelectCustomer(customer)}
-                className="w-full p-4 text-left bg-white dark:bg-slate-950 dark:border-0 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-amber-100 hover:dark:bg-gray-800 shadow-sm hover:shadow-md ring ring-red-100 dark:ring-black flex items-center gap-4 cursor-pointer group "
+                className="w-full p-4 text-left bg-slate-50 dark:bg-gray-800 dark:border-0 border border-gray-100 rounded-lg hover:bg-amber-50 hover:border-amber-100 hover:dark:bg-gray-800 shadow-sm hover:shadow-md ring ring-red-100 dark:ring-black flex items-center gap-4 cursor-pointer group "
               >
                 <div className="flex-grow">
                   <div className="flex justify-between items-center mb-1">
@@ -146,7 +148,7 @@ export default function FrequentCustomers({
               </button>
             ))
           ) : (
-            <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
+            <div className="text-center text-gray-500 p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
               <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p>此分店目前沒有常見會員</p>
             </div>

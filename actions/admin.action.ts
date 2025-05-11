@@ -45,12 +45,15 @@ export async function getTopSpendingMembers(): Promise<TopSpendingMember[]> {
 }
 
 // 獲取菜單項目
-export async function getMenuItems(): Promise<MenuItem[]> {
+export async function getMenuItems(isAvailable?: boolean): Promise<MenuItem[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("menu_items")
-    .select("id, name, price, category, image_url, is_available, cost")
-    .order("category, name");
+  let query = supabase.from("menu_items").select("*").order("category").order("name");
+
+  if (isAvailable !== undefined) {
+    query = query.eq("is_available", isAvailable);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error fetching menu items:", error);
@@ -59,7 +62,7 @@ export async function getMenuItems(): Promise<MenuItem[]> {
 
   const formattedData = snakeToCamel(data) as MenuItem[];
 
-  return formattedData || []
+  return formattedData || [];
 }
 
 // 新增菜單項目

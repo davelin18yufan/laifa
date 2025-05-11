@@ -22,13 +22,7 @@ export interface CreateOrderInput {
   items: OrderItemInput[]
 }
 
-export interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-  imageUrl?: string
-}
+export type Product = Omit<MenuItem, "cost" | "isAvailable"> 
 
 export interface CartItem extends Product {
   quantity: number

@@ -1,4 +1,4 @@
-import { getMenuItems } from "@/actions/menu.action"
+import { getMenuItems } from "@/actions/admin.action"
 import { getStoreById } from "@/actions/store.action"
 import OrderClientPage from "./clientPage"
 import { type Product } from "@/types/Order"

@@ -19,7 +19,7 @@ import { recordTransaction } from "@/actions/transaction.action"
 import { SparklesText } from "components/texts/SparklesText"
 import { debounce } from "@/lib/utils"
 import { FiRefreshCw } from "react-icons/fi"
-import { PiPen } from "react-icons/pi"
+import { PiPen, PiStorefront } from "react-icons/pi"
 import {
   Dialog,
   DialogTrigger,
@@ -38,8 +38,10 @@ import MemberFormDialog from "components/MemberFormDialog"
 
 export default function ClientPage({
   storeLocations,
+  allStores,
 }: {
   storeLocations: StoreLocation[]
+  allStores: Pick<StoreLocation, "id" | "name">[]
 }) {
   const [searchInput, setSearchInput] = useState("")
   const [amount, setAmount] = useState(0)
@@ -220,7 +222,7 @@ export default function ClientPage({
               <SparklesText
                 className="text-slate-800 dark:text-amber-100 text-5xl text-nowrap"
                 text={
-                  storeLocations.find((store) => store.id === currentStoreId)
+                  allStores.find((store) => store.id === currentStoreId)
                     ?.name || "未選擇分店"
                 }
               />
@@ -239,11 +241,11 @@ export default function ClientPage({
                 id="storeSelect"
                 value={currentStoreId}
                 onChange={handleStoreChange}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:dark:ring-amber-900"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:dark:ring-amber-900 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
               >
-                {storeLocations.map((store) => (
+                {allStores.map((store) => (
                   <option key={store.id} value={store.id}>
-                    {store.name}
+                    @ {store.name}
                   </option>
                 ))}
               </select>
@@ -489,6 +491,7 @@ export default function ClientPage({
         storeLocations={storeLocations}
         onSelectCustomer={handleSelectCustomer}
         initialActiveStoreId={currentStoreId}
+        allStores={allStores}
       />
     </div>
   )
