@@ -1,53 +1,14 @@
-import {
-  getBusinessOverview,
-  getPeakTransactionHours,
-  getNoteCategoryStats,
-  getStorePerformance,
-  getTopSpendingMembers,
-} from "@/actions/admin.action"
-import {
-  BusinessOverview,
-  PeakTransactionHour,
-  NoteCategoryStat,
-  StorePerformance,
-  TopSpendingMember,
-} from "@/types"
+import { getMenuItems } from "@/actions/admin.action"
 import ClientPage from "./clientPage"
+import { MenuItem } from "@/types/Order"
 
 export default async function AdminPage() {
-  // 獲取所有 View 資料
-  const [
-    businessOverview,
-    peakHoursData,
-    noteStatsData,
-    storePerformanceData,
-    topSpendersData,
-  ] = await Promise.all([
-    getBusinessOverview(),
-    getPeakTransactionHours(),
-    getNoteCategoryStats(),
-    getStorePerformance(),
-    getTopSpendingMembers(),
-  ])
+  // 獲取菜單項目
+  const menuItems = await getMenuItems()
 
-  // 檢查是否有錯誤或空數據
-  if (
-    !businessOverview ||
-    !peakHoursData ||
-    !noteStatsData ||
-    !storePerformanceData ||
-    !topSpendersData
-  ) {
-    throw new Error("Failed to fetch data from one or more views")
+  if (!menuItems) {
+    throw new Error("Failed to fetch menu items")
   }
 
-  return (
-    <ClientPage
-      businessOverview={businessOverview as BusinessOverview}
-      peakHoursData={peakHoursData as PeakTransactionHour[]}
-      noteStatsData={noteStatsData as NoteCategoryStat[]}
-      storePerformanceData={storePerformanceData as StorePerformance[]}
-      topSpendersData={topSpendersData as TopSpendingMember[]}
-    />
-  )
+  return <ClientPage menuItems={menuItems as MenuItem[]} />
 }

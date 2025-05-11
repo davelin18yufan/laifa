@@ -3,8 +3,9 @@ export interface MenuItem {
   name: string
   price: number
   cost: number
-  is_available: boolean
+  isAvailable: boolean
   category: string
+  imageUrl?: string
 }
 
 export interface OrderItemInput {
