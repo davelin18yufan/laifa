@@ -15,8 +15,9 @@ import {
   DialogClose,
 } from "@/components/Dialog"
 import { MenuItem } from "@/types/Order"
-import { FaTrashAlt, FaChevronCircleDown, FaPlusCircle } from "react-icons/fa"
+import { FaTrashAlt, FaChevronCircleDown, FaPlusCircle, FaEye } from "react-icons/fa"
 import { cn } from "@/lib/utils"
+import IconButton from "components/buttons/IconButton"
 
 interface EditableMenuItem {
   name: string
@@ -216,7 +217,7 @@ export default function ClientPage({
   }
 
   return (
-    <div className="p-6 bg-amber-50 dark:bg-zinc-900 min-h-screen">
+    <div className="p-6 bg-[#F9F5F1] dark:bg-zinc-900 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-amber-800">菜單管理</h1>
 
       {/* 可展開的新增表單 */}
@@ -244,7 +245,7 @@ export default function ClientPage({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
               className="p-6 border-l-4 border-amber-500 dark:border-amber-800 overflow-hidden"
               layout
             >
@@ -352,7 +353,7 @@ export default function ClientPage({
       )}
 
       {/* Tab 導航 */}
-      <div className="relative mb-4 border-b border-amber-200">
+      <div className="relative mb-4 border-b border-amber-200 flex justify-between">
         <ul className="flex flex-wrap -mb-px relative">
           {sortedCategories.map((category) => (
             <li key={category} className="mr-2 relative">
@@ -375,6 +376,16 @@ export default function ClientPage({
             </li>
           ))}
         </ul>
+
+        <IconButton
+          label="Insight"
+          labelAfter="統計數據"
+          href="/admin/insight"
+          icon={<FaEye size={14} />}
+          openInNewTab={true}
+          buttonClass="mb-1"
+          hoverClass="group-hover:bg-amber-500 dark:group-hover:bg-amber-700/80 "
+        />
       </div>
 
       {/* 當前分類菜單項目 */}
@@ -418,7 +429,7 @@ export default function ClientPage({
                 <th className="p-3">成本</th>
                 <th className="p-3">圖片</th>
                 <th className="p-3">狀態</th>
-                <th className="p-3 rounded-tr-lg">操作</th>
+                <th className="p-3 rounded-tr-lg">選項</th>
               </tr>
             </thead>
             <tbody>
