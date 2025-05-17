@@ -230,7 +230,7 @@ export default function ClientPage({
         </div>
 
         {/* 收入趨勢 */}
-        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md col-span-1 lg:col-span-2">
+        <div className="bg-amber-50 dark:bg-zinc-800 p-4 rounded-lg shadow-md col-span-1 lg:col-span-2">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
             收入趨勢
           </h2>
@@ -244,8 +244,13 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  {item.key}: ${item.value.toLocaleString()} (
-                  {item.transaction_count} 筆交易)
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                    {item.key}:
+                  </span>{" "}
+                  <span className="text-amber-500 dark:text-amber-400">
+                    ${item.value.toLocaleString()} ({item.transaction_count}{" "}
+                    筆交易)
+                  </span>
                 </div>
               ))}
             </TooltipContent>
@@ -253,7 +258,7 @@ export default function ClientPage({
         </div>
 
         {/* 熱門品項 */}
-        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+        <div className="bg-amber-50 dark:bg-zinc-800 p-4 rounded-lg shadow-md ">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
             熱門品項
           </h2>
@@ -267,8 +272,13 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  {item.name}: ${item.total_revenue.toLocaleString()} (
-                  {item.total_quantity} 份)
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                    {item.name}:
+                  </span>{" "}
+                  <span className="text-amber-500 dark:text-amber-400">
+                    ${item.total_revenue.toLocaleString()} (
+                    {item.total_quantity} 份)
+                  </span>
                 </div>
               ))}
             </TooltipContent>
@@ -290,7 +300,12 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  {item.category}: ${item.total_revenue.toLocaleString()}
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                    {item.category}:
+                  </span>{" "}
+                  <span className="text-amber-500 dark:text-amber-400">
+                    ${item.total_revenue.toLocaleString()}
+                  </span>
                 </div>
               ))}
             </TooltipContent>
@@ -312,10 +327,15 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  {item.storeName}: 淨收入 $
-                  {storeNetRevenueChartData[index].value.toLocaleString()} (消費
-                  ${item.totalConsumption.toLocaleString()}, 存款 $
-                  {item.totalDeposit.toLocaleString()})
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                    {item.storeName}:
+                  </span>{" "}
+                  <span className="text-amber-500 dark:text-amber-400">
+                    淨收入 $
+                    {storeNetRevenueChartData[index].value.toLocaleString()}{" "}
+                    (消費 ${item.totalConsumption.toLocaleString()}, 存款 $
+                    {item.totalDeposit.toLocaleString()})
+                  </span>
                 </div>
               ))}
             </TooltipContent>
@@ -337,8 +357,13 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  {item.name}: ${item.total_spent.toLocaleString()} (
-                  {item.order_count} 次, 偏好: {item.preferred_categories})
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                    {item.name}:
+                  </span>
+                  <span className="text-amber-500 dark:text-amber-400">
+                    ${item.total_spent.toLocaleString()} ({item.order_count} 次,
+                    偏好: {item.preferred_categories})
+                  </span>
                 </div>
               ))}
             </TooltipContent>
