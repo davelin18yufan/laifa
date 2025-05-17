@@ -67,3 +67,42 @@ export function AnimatedLine({ children }: { children: React.ReactNode }) {
     </motion.g>
   )
 }
+
+
+export function AnimatedArea({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.g
+      initial={{ clipPath: "inset(0% 100% 0% 0%)" }} // Animates from right
+      animate={{ clipPath: "inset(0% 0% 0% 0%)" }} // To original position
+      transition={{
+        duration: 1, // Adjust duration as needed
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.g>
+  )
+}
+
+export function AnimatedCircle({
+  index = 0,
+  children,
+}: {
+  index?: number
+  children: React.ReactNode
+}) {
+  return (
+    <motion.g
+      initial={{ strokeWidth: 0 }}
+      animate={{ strokeWidth: 15 }}
+      transition={{
+        type: "spring",
+        duration: 1,
+        bounce: 0.65,
+        delay: index * 0.03,
+      }}
+    >
+      {children}
+    </motion.g>
+  )
+}

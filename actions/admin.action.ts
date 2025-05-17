@@ -251,7 +251,9 @@ export async function getTopCustomers(): Promise<TopCustomer[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .rpc("get_top_customers")
-    .select("name, order_count, total_spent, preferred_categories")
+    .select(
+      "name, order_count, total_spent, preferred_categories, preferred_store"
+    )
     .order("total_spent", { ascending: false })
     .limit(5)
 

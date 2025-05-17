@@ -17,6 +17,8 @@ import {
   StorePerformance,
   TopCustomer,
 } from "@/types"
+import { AreaChart } from "components/charts/AreaChart"
+import { ScatterChart } from "components/charts/ScatterChart"
 
 interface ClientPageProps {
   businessOverview: BusinessOverview
@@ -88,14 +90,18 @@ export default function ClientPage({
   }))
 
   // 收入趨勢
-  const revenueTrendChartData = revenueTrend.map((item) => ({
-    key: new Date(item.date).toLocaleDateString("zh-TW", {
-      month: "short",
-      day: "numeric",
-    }),
-    value: item.total_revenue,
-    transaction_count: item.transaction_count,
-  }))
+  const revenueTrendChartData = revenueTrend
+    .map((item) => {
+      const date = new Date(item.date)
+      if (isNaN(date.getTime())) return null // 過濾無效日期
+      return {
+        date,
+        value: item.total_revenue,
+        transaction_count: item.transaction_count,
+      }
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null)
+    .sort((a, b) => a.date.getTime() - b.date.getTime()) // 確保日期順序
 
   // 分店表現（淨收入）
   const storeNetRevenueChartData = storePerformance.map((item, index) => ({
@@ -108,11 +114,11 @@ export default function ClientPage({
 
   // 高價值客戶
   const topCustomersChartData = topCustomers.map((item, index) => ({
-    key: item.name,
+    days: item.order_count,
     value: item.total_spent,
-    color: colors[index % colors.length],
-    order_count: item.order_count,
+    name: item.name,
     preferred_categories: item.preferred_categories,
+    preferred_store: item.preferred_store,
   }))
 
   return (
@@ -236,7 +242,7 @@ export default function ClientPage({
           </h2>
           <ClientTooltip>
             <TooltipTrigger>
-              <LineChart data={revenueTrendChartData} />
+              <AreaChart data={revenueTrendChartData} />
             </TooltipTrigger>
             <TooltipContent>
               {revenueTrendChartData.map((item, index) => (
@@ -245,7 +251,7 @@ export default function ClientPage({
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
                   <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
-                    {item.key}:
+                    {item.date.toLocaleDateString()}:
                   </span>
                   <span className="text-amber-500 dark:text-amber-400">
                     ${item.value.toLocaleString()} ({item.transaction_count}{" "}
@@ -349,7 +355,7 @@ export default function ClientPage({
           </h2>
           <ClientTooltip>
             <TooltipTrigger>
-              <HorizontalBarChart data={topCustomersChartData} />
+              <ScatterChart data={topCustomersChartData} />
             </TooltipTrigger>
             <TooltipContent>
               {topCustomers.map((item, index) => (

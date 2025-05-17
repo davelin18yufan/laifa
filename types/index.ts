@@ -24,7 +24,7 @@ export interface Member {
   name: string
   lastBalanceUpdate: string
   birthday?: string
-  gender: "male" | "female" 
+  gender: "male" | "female"
   latestNote?: Note | null
   storeId: string
 }
@@ -34,8 +34,8 @@ export interface Note {
   memberId: string
   category: string
   content: string
-  createdAt: string 
-  updatedAt: string 
+  createdAt: string
+  updatedAt: string
 }
 
 export interface FrequentMembers {
@@ -55,36 +55,36 @@ export interface FrequentMembers {
 }
 
 export interface BusinessOverview {
-  totalMembers: number;
-  totalConsumption: number;
-  totalDeposit: number;
-  avgMemberBalance: number;
+  totalMembers: number
+  totalConsumption: number
+  totalDeposit: number
+  avgMemberBalance: number
 }
 
 export interface PeakTransactionHour {
-  hourOfDay: number;
-  transactionCount: number;
+  hourOfDay: number
+  transactionCount: number
 }
 
 export interface NoteCategoryStat {
-  category: string;
-  noteCount: number;
-  uniqueMembers: number;
+  category: string
+  noteCount: number
+  uniqueMembers: number
 }
 
 export interface StorePerformance {
-  storeId: string;
-  storeName: string;
-  totalConsumption: number;
-  totalDeposit: number;
-  frequentMemberRatio: number;
+  storeId: string
+  storeName: string
+  totalConsumption: number
+  totalDeposit: number
+  frequentMemberRatio: number
 }
 
 export interface TopSpendingMember {
-  memberId: string;
-  phone: string;
-  name: string;
-  totalSpent: number;
+  memberId: string
+  phone: string
+  name: string
+  totalSpent: number
 }
 
 export interface PopularItem {
@@ -108,4 +108,5 @@ export interface TopCustomer {
   order_count: number
   total_spent: number
   preferred_categories: string
+  preferred_store: string
 }
