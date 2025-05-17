@@ -4,7 +4,6 @@ import {
   scaleLinear,
   line as d3line,
   max,
-  bisector,
   area as d3area,
   curveMonotoneX,
 } from "d3"

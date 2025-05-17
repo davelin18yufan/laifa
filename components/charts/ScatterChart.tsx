@@ -1,5 +1,5 @@
 import { CSSProperties } from "react"
-import { scaleTime, scaleLinear, max, line as d3_line, min } from "d3"
+import { scaleLinear, max, line as d3_line, min } from "d3"
 import { AnimatedCircle } from "./AnimatedContainer"
 
 export function ScatterChart({data}: { data: { days: number; value: number }[] }) {

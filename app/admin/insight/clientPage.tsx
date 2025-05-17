@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { PieChart } from "components/charts/PieChart"
 import { HorizontalBarChart } from "components/charts/BarChart"
-import { LineChart } from "components/charts/LineChart"
 import {
   ClientTooltip,
   TooltipTrigger,
