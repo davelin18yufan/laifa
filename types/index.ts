@@ -86,3 +86,26 @@ export interface TopSpendingMember {
   name: string;
   totalSpent: number;
 }
+
+export interface PopularItem {
+  name: string
+  category: string
+  order_count: number
+  total_quantity: number
+  total_revenue: number
+}
+export interface CategorySales {
+  category: string
+  total_revenue: number
+}
+export interface RevenueTrend {
+  date: string
+  transaction_count: number
+  total_revenue: number
+}
+export interface TopCustomer {
+  name: string
+  order_count: number
+  total_spent: number
+  preferred_categories: string
+}

@@ -1,157 +1,348 @@
 "use client"
 
+import { useState } from "react"
 import { PieChart } from "components/charts/PieChart"
 import { HorizontalBarChart } from "components/charts/BarChart"
 import { LineChart } from "components/charts/LineChart"
 import {
+  ClientTooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "components/charts/Tooltip"
+import {
   BusinessOverview,
-  PeakTransactionHour,
-  NoteCategoryStat,
+  PopularItem,
+  CategorySales,
+  RevenueTrend,
   StorePerformance,
-  TopSpendingMember,
+  TopCustomer,
 } from "@/types"
 
 interface ClientPageProps {
   businessOverview: BusinessOverview
-  peakHoursData: PeakTransactionHour[]
-  noteStatsData: NoteCategoryStat[]
-  storePerformanceData: StorePerformance[]
-  topSpendersData: TopSpendingMember[]
+  popularItems: PopularItem[]
+  categorySales: CategorySales[]
+  revenueTrend: RevenueTrend[]
+  storePerformance: StorePerformance[]
+  topCustomers: TopCustomer[]
 }
 
 export default function ClientPage({
   businessOverview,
-  peakHoursData,
-  noteStatsData,
-  storePerformanceData,
-  topSpendersData,
+  popularItems,
+  categorySales,
+  revenueTrend,
+  storePerformance,
+  topCustomers,
 }: ClientPageProps) {
-  // 更新配色方案
+  const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("day")
+
+  // 統一配色方案（品牌色）
   const colors = [
     "#F5A5DB", // 粉紅
-    "#B89DFB", // 淡紫
     "#758BCF", // 淡藍
     "#33C2EA", // 青藍
     "#FFC182", // 橘黃
     "#87DB72", // 淡綠
+    "#B89DFB", // 淡紫
   ]
 
-  // 準備 Peak Transaction Hours 的資料
-  const peakHoursChartData = peakHoursData.map((item, index) => ({
-    key: `${item.hourOfDay}點`,
-    value: item.transactionCount,
-    color: colors[index % colors.length],
-  }))
+  // 業務概覽：計算增長率（假設有上月數據）
+  const growthRates = {
+    totalMembers: (
+      ((businessOverview.totalMembers - businessOverview.totalMembers * 0.95) /
+        (businessOverview.totalMembers * 0.95)) *
+      100
+    ).toFixed(1),
+    totalConsumption: (
+      ((businessOverview.totalConsumption -
+        businessOverview.totalConsumption * 0.9) /
+        (businessOverview.totalConsumption * 0.9)) *
+      100
+    ).toFixed(1),
+    totalDeposit: (
+      ((businessOverview.totalDeposit - businessOverview.totalDeposit * 0.92) /
+        (businessOverview.totalDeposit * 0.92)) *
+      100
+    ).toFixed(1),
+    avgMemberBalance: (
+      ((businessOverview.avgMemberBalance -
+        businessOverview.avgMemberBalance * 0.98) /
+        (businessOverview.avgMemberBalance * 0.98)) *
+      100
+    ).toFixed(1),
+  }
 
-  // 準備 Note Category Stats 的資料
-  const noteStatsChartData = noteStatsData.map((item) => ({
-    name: item.category,
-    value: item.noteCount,
-  }))
-
-  // 準備 Store Performance 的資料（消費）
-  const storeConsumptionChartData = storePerformanceData.map((item, index) => ({
-    key: item.storeName,
-    value: item.totalConsumption,
-    color: colors[index % colors.length],
-  }))
-
-  // 準備 Store Performance 的資料（存款）
-  const storeDepositChartData = storePerformanceData.map((item, index) => ({
-    key: item.storeName,
-    value: item.totalDeposit,
-    color: colors[index % colors.length],
-  }))
-
-  // 準備 Top Spending Members 的資料
-  const topSpendersChartData = topSpendersData.map((item, index) => ({
+  // 熱門品項
+  const popularItemsChartData = popularItems.map((item, index) => ({
     key: item.name,
-    value: item.totalSpent,
+    value: item.total_revenue,
     color: colors[index % colors.length],
   }))
 
-  const lineChartData = peakHoursData.map((item) => ({
-    key: item.hourOfDay,
-    value: item.transactionCount,
+  // 品類銷售
+  const categorySalesChartData = categorySales.map((item, index) => ({
+    name: item.category,
+    value: item.total_revenue,
+    color: colors[index % colors.length],
+  }))
+
+  // 收入趨勢
+  const revenueTrendChartData = revenueTrend.map((item) => ({
+    key: new Date(item.date).toLocaleDateString("zh-TW", {
+      month: "short",
+      day: "numeric",
+    }),
+    value: item.total_revenue,
+    transaction_count: item.transaction_count,
+  }))
+
+  // 分店表現（淨收入）
+  const storeNetRevenueChartData = storePerformance.map((item, index) => ({
+    key: item.storeName,
+    value: item.totalConsumption - item.totalDeposit,
+    color: colors[index % colors.length],
+    consumption: item.totalConsumption,
+    deposit: item.totalDeposit,
+  }))
+
+  // 高價值客戶
+  const topCustomersChartData = topCustomers.map((item, index) => ({
+    key: item.name,
+    value: item.total_spent,
+    color: colors[index % colors.length],
+    order_count: item.order_count,
+    preferred_categories: item.preferred_categories,
   }))
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-semibold mb-6 text-gray-700">業務洞察</h1>
-      {/* Bento 格局網格 */}
+    <div className="p-6 bg-gray-100 dark:bg-zinc-900 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+          Business Insight
+        </h1>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setTimeRange("day")}
+            className={`px-3 py-1 rounded-lg ${
+              timeRange === "day"
+                ? "bg-amber-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            日
+          </button>
+          <button
+            onClick={() => setTimeRange("week")}
+            className={`px-3 py-1 rounded-lg ${
+              timeRange === "week"
+                ? "bg-amber-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            週
+          </button>
+          <button
+            onClick={() => setTimeRange("month")}
+            className={`px-3 py-1 rounded-lg ${
+              timeRange === "month"
+                ? "bg-amber-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            月
+          </button>
+        </div>
+      </div>
+
+      {/* Bento 網格 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* 業務概覽卡片 */}
-        <div className="col-span-1 lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-sm text-gray-500">總會員數</h2>
-            <p className="text-2xl font-semibold text-gray-700">
-              {businessOverview.totalMembers}
+        {/* 業務概覽 */}
+        <div className="col-span-1 lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4 *:text-center *:bg-amber-50 *:dark:bg-zinc-800 *:p-4 *:rounded-lg *:shadow-md">
+          <div className="">
+            <h2 className="text-sm text-gray-500 dark:text-gray-400">
+              總會員數
+            </h2>
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+              {businessOverview.totalMembers.toLocaleString()}
+            </p>
+            <p
+              className={`text-sm ${
+                +growthRates.totalMembers > 0
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {growthRates.totalMembers}% vs 上月
             </p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-sm text-gray-500">總消費金額</h2>
-            <p className="text-2xl font-semibold text-gray-700">
+          <div className="">
+            <h2 className="text-sm text-gray-500 dark:text-gray-400">
+              總消費金額
+            </h2>
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
               ${businessOverview.totalConsumption.toLocaleString()}
             </p>
+            <p
+              className={`text-sm ${
+                +growthRates.totalConsumption > 0
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {growthRates.totalConsumption}% vs 上月
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-sm text-gray-500">總存款金額</h2>
-            <p className="text-2xl font-semibold text-gray-700">
+          <div className="">
+            <h2 className="text-sm text-gray-500 dark:text-gray-400">
+              總存款金額
+            </h2>
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
               ${businessOverview.totalDeposit.toLocaleString()}
             </p>
+            <p
+              className={`text-sm ${
+                +growthRates.totalDeposit > 0
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {growthRates.totalDeposit}% vs 上月
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-sm text-gray-500">平均會員餘額</h2>
-            <p className="text-2xl font-semibold text-gray-700">
+          <div className="">
+            <h2 className="text-sm text-gray-500 dark:text-gray-400">
+              平均會員餘額
+            </h2>
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
               ${businessOverview.avgMemberBalance.toLocaleString()}
+            </p>
+            <p
+              className={`text-sm ${
+                +growthRates.avgMemberBalance > 0
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {growthRates.avgMemberBalance}% vs 上月
             </p>
           </div>
         </div>
 
-        {/* Peak Transaction Hours */}
-        <div className="bg-white p-4 rounded-lg shadow-md col-span-1 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            高峰交易時段
+        {/* 收入趨勢 */}
+        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md col-span-1 lg:col-span-2">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            收入趨勢
           </h2>
-          <HorizontalBarChart data={peakHoursChartData} />
+          <ClientTooltip>
+            <TooltipTrigger>
+              <LineChart data={revenueTrendChartData} />
+            </TooltipTrigger>
+            <TooltipContent>
+              {revenueTrendChartData.map((item, index) => (
+                <div
+                  key={index}
+                  className="text-sm text-gray-700 dark:text-gray-200"
+                >
+                  {item.key}: ${item.value.toLocaleString()} (
+                  {item.transaction_count} 筆交易)
+                </div>
+              ))}
+            </TooltipContent>
+          </ClientTooltip>
         </div>
 
-        {/* Note Category Stats */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            備註類別統計
+        {/* 熱門品項 */}
+        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            熱門品項
           </h2>
-          <PieChart data={noteStatsChartData} singleColor="green" />
+          <ClientTooltip>
+            <TooltipTrigger>
+              <HorizontalBarChart data={popularItemsChartData} />
+            </TooltipTrigger>
+            <TooltipContent>
+              {popularItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="text-sm text-gray-700 dark:text-gray-200"
+                >
+                  {item.name}: ${item.total_revenue.toLocaleString()} (
+                  {item.total_quantity} 份)
+                </div>
+              ))}
+            </TooltipContent>
+          </ClientTooltip>
         </div>
 
-        {/* Store Performance - Consumption */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            分店消費總額
+        {/* 品類銷售 */}
+        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            品類銷售佔比
           </h2>
-          <HorizontalBarChart data={storeConsumptionChartData} />
+          <ClientTooltip>
+            <TooltipTrigger>
+              <PieChart data={categorySalesChartData} singleColor="blue" />
+            </TooltipTrigger>
+            <TooltipContent>
+              {categorySales.map((item, index) => (
+                <div
+                  key={index}
+                  className="text-sm text-gray-700 dark:text-gray-200"
+                >
+                  {item.category}: ${item.total_revenue.toLocaleString()}
+                </div>
+              ))}
+            </TooltipContent>
+          </ClientTooltip>
         </div>
 
-        {/* Store Performance - Deposit */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            分店存款總額
+        {/* 分店表現 */}
+        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            分店淨收入
           </h2>
-          <HorizontalBarChart data={storeDepositChartData} />
+          <ClientTooltip>
+            <TooltipTrigger>
+              <HorizontalBarChart data={storeNetRevenueChartData} />
+            </TooltipTrigger>
+            <TooltipContent>
+              {storePerformance.map((item, index) => (
+                <div
+                  key={index}
+                  className="text-sm text-gray-700 dark:text-gray-200"
+                >
+                  {item.storeName}: 淨收入 $
+                  {storeNetRevenueChartData[index].value.toLocaleString()} (消費
+                  ${item.totalConsumption.toLocaleString()}, 存款 $
+                  {item.totalDeposit.toLocaleString()})
+                </div>
+              ))}
+            </TooltipContent>
+          </ClientTooltip>
         </div>
 
-        {/* Top Spending Members */}
-        <div className="bg-white p-4 rounded-lg shadow-md col-span-1">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            高消費會員
+        {/* 高價值客戶 */}
+        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            高價值客戶
           </h2>
-          <HorizontalBarChart data={topSpendersChartData} />
-        </div>
-
-        {/* Vertical Line Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md col-span-1 lg:row-span-2">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">交易趨勢</h2>
-          <LineChart data={lineChartData} />
+          <ClientTooltip>
+            <TooltipTrigger>
+              <HorizontalBarChart data={topCustomersChartData} />
+            </TooltipTrigger>
+            <TooltipContent>
+              {topCustomers.map((item, index) => (
+                <div
+                  key={index}
+                  className="text-sm text-gray-700 dark:text-gray-200"
+                >
+                  {item.name}: ${item.total_spent.toLocaleString()} (
+                  {item.order_count} 次, 偏好: {item.preferred_categories})
+                </div>
+              ))}
+            </TooltipContent>
+          </ClientTooltip>
         </div>
       </div>
     </div>

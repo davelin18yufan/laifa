@@ -1,4 +1,3 @@
-// actions/admin.action.ts
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
@@ -8,6 +7,10 @@ import {
   NoteCategoryStat,
   StorePerformance,
   TopSpendingMember,
+  CategorySales,
+  PopularItem,
+  RevenueTrend,
+  TopCustomer,
 } from "@/types"
 import { snakeToCamel } from "@/lib/utils"
 import { MenuItem } from "@/types/Order"
@@ -190,4 +193,72 @@ export async function deleteMenuItem(id: string): Promise<void> {
     }
     throw new Error(error.message || "無法刪除菜單項目");
   }
+}
+
+// 獲取熱門品項
+export async function getPopularItems(): Promise<PopularItem[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .rpc("get_popular_items")
+    .select("name, category, order_count, total_quantity, total_revenue")
+    .order("total_revenue", { ascending: false })
+    .limit(5)
+
+  if (error) {
+    console.error("Error fetching popular items:", error)
+    throw new Error("無法獲取熱門品項")
+  }
+
+  return data || []
+}
+
+// 品類銷售佔比
+export async function getCategorySales(): Promise<CategorySales[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .rpc("get_category_sales")
+    .select("category, total_revenue")
+    .order("total_revenue", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching category sales:", error)
+    throw new Error("無法獲取品類銷售")
+  }
+
+  return data || []
+}
+
+// 收入趨勢
+export async function getRevenueTrend(
+  timeRange: "day" | "week" | "month" = "day"
+): Promise<RevenueTrend[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .rpc("get_revenue_trend", { time_range: timeRange })
+    .select("date, transaction_count, total_revenue")
+    .order("date")
+
+  if (error) {
+    console.error("Error fetching revenue trend:", error)
+    throw new Error("無法獲取收入趨勢")
+  }
+
+  return data || []
+}
+
+// 高價值客戶
+export async function getTopCustomers(): Promise<TopCustomer[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .rpc("get_top_customers")
+    .select("name, order_count, total_spent, preferred_categories")
+    .order("total_spent", { ascending: false })
+    .limit(5)
+
+  if (error) {
+    console.error("Error fetching top customers:", error)
+    throw new Error("無法獲取高價值客戶")
+  }
+
+  return data || []
 }
