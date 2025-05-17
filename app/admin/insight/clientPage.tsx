@@ -244,9 +244,9 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
                     {item.key}:
-                  </span>{" "}
+                  </span>
                   <span className="text-amber-500 dark:text-amber-400">
                     ${item.value.toLocaleString()} ({item.transaction_count}{" "}
                     筆交易)
@@ -272,9 +272,9 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
                     {item.name}:
-                  </span>{" "}
+                  </span>
                   <span className="text-amber-500 dark:text-amber-400">
                     ${item.total_revenue.toLocaleString()} (
                     {item.total_quantity} 份)
@@ -286,7 +286,7 @@ export default function ClientPage({
         </div>
 
         {/* 品類銷售 */}
-        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+        <div className="bg-amber-50 dark:bg-zinc-800 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
             品類銷售佔比
           </h2>
@@ -300,9 +300,9 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
                     {item.category}:
-                  </span>{" "}
+                  </span>
                   <span className="text-amber-500 dark:text-amber-400">
                     ${item.total_revenue.toLocaleString()}
                   </span>
@@ -313,7 +313,7 @@ export default function ClientPage({
         </div>
 
         {/* 分店表現 */}
-        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+        <div className="bg-amber-50 dark:bg-zinc-800 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
             分店淨收入
           </h2>
@@ -327,7 +327,7 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
                     {item.storeName}:
                   </span>{" "}
                   <span className="text-amber-500 dark:text-amber-400">
@@ -343,7 +343,7 @@ export default function ClientPage({
         </div>
 
         {/* 高價值客戶 */}
-        <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+        <div className="bg-amber-50 dark:bg-zinc-800 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
             高價值客戶
           </h2>
@@ -357,7 +357,7 @@ export default function ClientPage({
                   key={index}
                   className="text-sm text-gray-700 dark:text-gray-200"
                 >
-                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80">
+                  <span className="font-bold text-gray-500/80 dark:text-gray-200/80 mr-1">
                     {item.name}:
                   </span>
                   <span className="text-amber-500 dark:text-amber-400">
