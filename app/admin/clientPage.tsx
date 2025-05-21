@@ -289,7 +289,7 @@ export default function ClientPage({
                     onChange={(e) =>
                       setNewItem({ ...newItem, category: e.target.value })
                     }
-                    className="p-3 border border-amber-200 rounded w-full focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="p-3 border border-amber-200 rounded w-full focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50 dark:bg-slate-800"
                   >
                     <option value="">選擇類別</option>
                     {categories.map((cat) => (
