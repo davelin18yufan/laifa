@@ -33,16 +33,16 @@ export default async function InsightPage() {
     getTopCustomers(),
   ])
 
-  // if (
-  //   !businessOverview ||
-  //   !popularItems ||
-  //   !categorySales ||
-  //   !revenueTrend ||
-  //   !storePerformance ||
-  //   !topCustomers
-  // ) {
-  //   throw new Error("Failed to fetch data from one or more sources")
-  // }
+  if (
+    !businessOverview ||
+    !popularItems ||
+    !categorySales ||
+    !revenueTrend ||
+    !storePerformance ||
+    !topCustomers
+  ) {
+    throw new Error("Failed to fetch data from one or more sources")
+  }
 
   return (
     <ClientPage

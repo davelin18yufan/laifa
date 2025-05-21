@@ -15,11 +15,30 @@ import {
 import { snakeToCamel } from "@/lib/utils"
 import { MenuItem } from "@/types/Order"
 
-export async function getBusinessOverview(): Promise<BusinessOverview> {
+export async function getBusinessOverview(
+  timeRange: "day" | "week" | "month" = "day"
+): Promise<BusinessOverview> {
   const supabase = await createClient()
-  const { data } = await supabase.from("business_overview").select("*").single()
-  return snakeToCamel(data) as BusinessOverview
+  const { data, error } = await supabase
+    .rpc("get_business_overview", { time_range: timeRange })
+    .select(
+      "total_members, total_consumption, total_deposit, avg_member_balance"
+    )
+    .single()
+
+  if (error) {
+    console.error("Error fetching business overview:", error)
+    throw new Error("無法獲取業務概覽")
+  }
+
+  return {
+    totalMembers: data.total_members,
+    totalConsumption: data.total_consumption,
+    totalDeposit: data.total_deposit,
+    avgMemberBalance: data.avg_member_balance,
+  }
 }
+
 
 export async function getPeakTransactionHours(): Promise<
   PeakTransactionHour[]

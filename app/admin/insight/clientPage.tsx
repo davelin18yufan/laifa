@@ -36,7 +36,7 @@ export default function ClientPage({
   storePerformance,
   topCustomers,
 }: ClientPageProps) {
-  const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("day")
+  const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("day") // 預設使用日範圍
 
   // 統一配色方案（品牌色）
   const colors = [
