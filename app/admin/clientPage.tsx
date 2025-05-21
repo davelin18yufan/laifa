@@ -15,7 +15,12 @@ import {
   DialogClose,
 } from "@/components/Dialog"
 import { MenuItem } from "@/types/Order"
-import { FaTrashAlt, FaChevronCircleDown, FaPlusCircle, FaEye } from "react-icons/fa"
+import {
+  FaTrashAlt,
+  FaChevronCircleDown,
+  FaPlusCircle,
+  FaEye,
+} from "react-icons/fa"
 import { cn } from "@/lib/utils"
 import IconButton from "components/buttons/IconButton"
 
@@ -55,6 +60,7 @@ export default function ClientPage({
   }>({})
   const [selectAll, setSelectAll] = useState<boolean>(false)
   const [isFormExpanded, setIsFormExpanded] = useState<boolean>(false)
+  const [categorySelection, setCategorySelection] = useState<string>("")
 
   // 按分類分組
   const groupedItems = menuItems.reduce((acc, item) => {
@@ -134,6 +140,7 @@ export default function ClientPage({
 
   // 批量刪除
   const handleDelete = async () => {
+    if (!confirm("確定刪除?")) return
     const selectedIds = Object.keys(selectedItems).filter(
       (id) => selectedItems[id]
     )
@@ -168,33 +175,6 @@ export default function ClientPage({
     }
   }
 
-  // 單獨刪除
-  const handleSingleDelete = async (id: string) => {
-    try {
-      await deleteMenuItem(id)
-      setMenuItems(menuItems.filter((item) => item.id !== id))
-      setDeletingItemId(null)
-      setSelectedItems((prev) => {
-        const newSelected = { ...prev }
-        delete newSelected[id]
-        return newSelected
-      })
-      if (
-        groupedItems[activeTab]?.length === 1 &&
-        sortedCategories.length > 1
-      ) {
-        const currentIndex = sortedCategories.indexOf(activeTab)
-        const nextTab =
-          sortedCategories[currentIndex + 1] || sortedCategories[0]
-        setActiveTab(nextTab)
-      }
-      setError(null)
-    } catch (err: any) {
-      console.error("Delete menu item failed:", err)
-      setError(err.message || "無法刪除菜單項目")
-    }
-  }
-
   // 處理全選
   const handleSelectAll = (category: string) => {
     const newSelectedItems = { ...selectedItems }
@@ -215,7 +195,7 @@ export default function ClientPage({
     }))
     setSelectAll(false) // 單選時取消全選
   }
-
+console.log(editingItem)
   return (
     <div className="p-6 bg-[#F9F5F1] dark:bg-zinc-900 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-amber-800">菜單管理</h1>
@@ -285,10 +265,16 @@ export default function ClientPage({
                 />
                 <div>
                   <select
-                    value={newItem.category}
-                    onChange={(e) =>
-                      setNewItem({ ...newItem, category: e.target.value })
-                    }
+                    value={categorySelection}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setCategorySelection(value)
+                      if (value !== "__custom") {
+                        setNewItem({ ...newItem, category: value })
+                      } else {
+                        setNewItem({ ...newItem, category: "" })
+                      }
+                    }}
                     className="p-3 border border-amber-200 rounded w-full focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50 dark:bg-slate-800"
                   >
                     <option value="">選擇類別</option>
@@ -299,13 +285,11 @@ export default function ClientPage({
                     ))}
                     <option value="__custom">➕ 新增自定義類別</option>
                   </select>
-                  {newItem.category === "__custom" && (
+                  {categorySelection === "__custom" && (
                     <input
                       type="text"
                       placeholder="輸入新類別"
-                      value={
-                        newItem.category === "__custom" ? "" : newItem.category
-                      }
+                      value={newItem.category}
                       onChange={(e) =>
                         setNewItem({ ...newItem, category: e.target.value })
                       }
@@ -621,33 +605,69 @@ export default function ClientPage({
                                 className="p-3 border border-amber-200 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 w-full"
                               />
                             </div>
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  editingItem?.id === item.id
-                                    ? editingItem.isAvailable
-                                    : item.isAvailable
-                                }
-                                onChange={(e) =>
-                                  setEditingItem(
-                                    editingItem?.id === item.id
-                                      ? {
-                                          ...editingItem,
-                                          isAvailable: e.target.checked,
-                                        }
-                                      : {
-                                          ...item,
-                                          isAvailable: e.target.checked,
-                                        }
-                                  )
-                                }
-                                className="mr-2 h-5 w-5 text-amber-600"
-                              />
-                              <span className="text-gray-700 dark:text-gray-200">
-                                上架?
-                              </span>
-                            </label>
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                狀態
+                              </label>
+                              <div className="flex gap-4">
+                                <label className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    name={`isAvailable-${editingItem?.id}`}
+                                    checked={
+                                      editingItem?.id === item.id
+                                        ? editingItem.isAvailable === true
+                                        : item.isAvailable === true
+                                    }
+                                    onChange={() =>
+                                      setEditingItem(
+                                        editingItem?.id === item.id
+                                          ? {
+                                              ...editingItem,
+                                              isAvailable: true,
+                                            }
+                                          : {
+                                              ...item,
+                                              isAvailable: true,
+                                            }
+                                      )
+                                    }
+                                    className="mr-2 h-5 w-5 text-amber-600"
+                                  />
+                                  <span className="text-gray-700 dark:text-gray-200">
+                                    上架
+                                  </span>
+                                </label>
+                                <label className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    name={`isAvailable-${editingItem?.id}`}
+                                    checked={
+                                      editingItem?.id === item.id
+                                        ? editingItem.isAvailable === false
+                                        : item.isAvailable === false
+                                    }
+                                    onChange={() =>
+                                      setEditingItem(
+                                        editingItem?.id === item.id
+                                          ? {
+                                              ...editingItem,
+                                              isAvailable: false,
+                                            }
+                                          : {
+                                              ...item,
+                                              isAvailable: false,
+                                            }
+                                      )
+                                    }
+                                    className="mr-2 h-5 w-5 text-amber-600"
+                                  />
+                                  <span className="text-gray-700 dark:text-gray-200">
+                                    下架
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
                           </div>
                           <button
                             onClick={() =>
@@ -656,42 +676,13 @@ export default function ClientPage({
                               )
                             }
                             className="mt-6 bg-amber-500 dark:bg-slate-900 text-white p-3 rounded-lg hover:bg-amber-600 hover:dark:bg-amber-800 transition duration-200 w-full font-medium"
+                            disabled={!editingItem}
                           >
                             保存
                           </button>
                         </DialogContent>
                       </DialogContainer>
                     </Dialog>
-                    {/* <Dialog>
-                      <DialogTrigger className="text-red-600 hover:text-red-800 font-medium">
-                        <FaTrashAlt size={16} />
-                      </DialogTrigger>
-                      <DialogContainer>
-                        <DialogContent className="bg-amber-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md">
-                          <DialogClose className="text-gray-500 hover:text-gray-700 absolute right-4 top-4" />
-                          <h3 className="text-xl font-semibold mb-4 text-amber-700">
-                            刪除確認
-                          </h3>
-                          <p className="text-gray-700 dark:text-gray-200 mb-4">
-                            確定要刪除「{item.name}」嗎？此操作無法恢復。
-                          </p>
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => setDeletingItemId(null)}
-                              className="p-2 text-gray-500 hover:text-gray-700"
-                            >
-                              取消
-                            </button>
-                            <button
-                              onClick={() => handleSingleDelete(item.id)}
-                              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                            >
-                              確認
-                            </button>
-                          </div>
-                        </DialogContent>
-                      </DialogContainer>
-                    </Dialog> */}
                   </td>
                 </tr>
               ))}
